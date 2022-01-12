@@ -38,6 +38,7 @@ public final class Constants {
         public static final double BaseLockRampRate = 0;
         public static final boolean BrakeModeDefault = false;
         public static final double driveRampRate = 2;
+        public static final double DriveWheelDiameterInches = 0;
 
     }
 }

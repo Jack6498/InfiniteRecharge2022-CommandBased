@@ -6,10 +6,12 @@ package frc.robot.subsystems;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -31,6 +33,9 @@ public class DriveBase extends SubsystemBase {
   // rio
   private DigitalInput leftBarSensor, rightBarSensor;
   private static DriveBase instance;
+  private boolean isHighGear = false;
+  private DriveControlMode driveControlMode;
+  private boolean brakeEngaged = true; //  we are braking by default
 
   /**
    * Driving Mode<p>
@@ -102,9 +107,7 @@ public class DriveBase extends SubsystemBase {
     rightLeader = tunePID(rightLeader, Constants.Drive.BaseLockSlot, Constants.Drive.BaseLock_kP, Constants.Drive.BaseLock_kI, Constants.Drive.BaseLock_kD, Constants.Drive.BaseLock_kF, Constants.Drive.BaseLockIZone, Constants.Drive.BaseLockRampRate);
   }
 
-  private DriveControlMode driveControlMode;
-  private boolean brakeEngaged = true; //  we are braking by default
-
+  // hardware methods
   public static TalonFX tunePID(final TalonFX talon, final int slotId, final double P, final double I, final double D, final double F, final int iZone, final double rampRate)
   {
     talon.config_kP(slotId, P);
@@ -116,9 +119,36 @@ public class DriveBase extends SubsystemBase {
     return talon;
   }
 
-  boolean setBrakeMode(boolean brake_on)
+  public AHRS getGyro()
   {
-    return false;
+    return gyro;
+  }
+
+  public void resetSensors()
+  {
+    gyro.reset();
+    leftLeader.setSelectedSensorPosition(0);
+    rightLeader.setSelectedSensorPosition(0);
+  }
+
+  public Rotation2d getGyroAngle()
+  {
+    // negative angle because of the direction the gyro is mounted
+    return Rotation2d.fromDegrees(-gyro.getAngle());
+  }
+
+  public void setBrakeMode(boolean brake_on)
+  {
+    if (brakeEngaged != brake_on) {
+      if (brake_on) {
+        leftLeader.setNeutralMode(NeutralMode.Brake);
+        rightLeader.setNeutralMode(NeutralMode.Brake);
+      } else {
+        leftLeader.setNeutralMode(NeutralMode.Coast);
+        rightLeader.setNeutralMode(NeutralMode.Coast);
+      }
+    }
+    brakeEngaged = brake_on;
   }
   
   public void setTankDrive(final DriveSignal signal)
@@ -135,4 +165,24 @@ public class DriveBase extends SubsystemBase {
   {
 
   }
+
+  
+
+  public void setGear(boolean highGearOn)
+  {
+    isHighGear = highGearOn;
+    shifter.set(isHighGear);
+  }
+
+  public boolean getGear()
+  {
+    return isHighGear;
+  }
+
+  public DriveControlMode getControlMode()
+  {
+    return driveControlMode;
+  }
+
+  
 }
