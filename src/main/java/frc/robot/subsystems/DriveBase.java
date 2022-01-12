@@ -16,7 +16,6 @@ import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.wpilibj.motorcontrol.Talon;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.helpers.DriveSignal;
@@ -151,6 +150,7 @@ public class DriveBase extends SubsystemBase {
     brakeEngaged = brake_on;
   }
   
+  // driving modes
   public void setTankDrive(final DriveSignal signal)
   {
     if(driveControlMode != DriveControlMode.OPEN_LOOP)
@@ -161,12 +161,92 @@ public class DriveBase extends SubsystemBase {
     rightLeader.set(ControlMode.PercentOutput, signal.rightMotor);
   }
 
-  public void setArcadeDrive(double throttle, double turn)
+  // blatantly stolen from Team 3494 (The Quadrangles) (love yall)
+  public void setArcadeDrive(double throttle, double turn, boolean squareInputs)
   {
+    throttle = applyDeadband(clamp(throttle), 0.05);
+    turn = applyDeadband(clamp(turn), 0.05);
+
+    // square inputs (but keep the sign) to increase fine control
+    if (squareInputs) {
+      throttle = Math.copySign(throttle * throttle, throttle);
+      turn = Math.copySign(turn * turn, turn);
+    }
+
+    double leftMotorDemand, rightMotorDemand;
+    double maxInput = Math.copySign(Math.max(Math.abs(throttle), Math.abs(turn)), throttle);
+
+    // are we going to move forward?
+    if (throttle >= 0.0) 
+    {
+      // are we turning left?
+      if (turn >= 0.0) 
+      {
+        leftMotorDemand = maxInput;
+        rightMotorDemand = throttle - turn;
+      }  
+      else // we must be turning right
+      {
+        leftMotorDemand = throttle + turn;
+        rightMotorDemand = maxInput;
+      }
+    }
+    else // we must be going backwards
+    {
+      if (turn >= 0.0) // are we turning left?
+      {
+        leftMotorDemand = throttle + turn;
+        rightMotorDemand = maxInput;
+      }
+      else // we must be turning right
+      {
+        leftMotorDemand = maxInput;
+        rightMotorDemand = throttle - turn;
+      }
+    }
+    double[] stickSpeeds = normalize(new double[]{leftMotorDemand, rightMotorDemand});
+    setTankDrive(new DriveSignal(stickSpeeds[0], stickSpeeds[1]));
+  }
+
+  private double clamp(double value)
+  {
+    if (value > 1.0) 
+    {
+      return 1.0;
+    } 
+    else if (value < -1.0)
+    {
+      return -1.0;
+    }
+    else
+    {
+      return value;
+    }
 
   }
 
-  
+  private double applyDeadband(double value, double deadband)
+  {
+    return value;
+  }
+
+  private double[] normalize(double[] motorSpeeds)
+  {
+    double max = Math.abs(motorSpeeds[0]);
+    boolean normFlag = max > 1; // do we normalize or just pass it back?
+    for (int i = 1; i < motorSpeeds.length; i++) {
+      if (Math.abs(motorSpeeds[i]) > max) { // set max to biggest magnitude motor speed
+        max = Math.abs(motorSpeeds[i]);
+        normFlag = max > 1;
+      }
+    }
+    if (normFlag) { // normalize speeds
+      for (int i = 0; i < motorSpeeds.length; i++) {
+        motorSpeeds[i] /= max;
+      }
+    }
+    return motorSpeeds;
+  }
 
   public void setGear(boolean highGearOn)
   {

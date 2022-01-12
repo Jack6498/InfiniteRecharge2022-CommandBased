@@ -6,7 +6,8 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
-import frc.robot.commands.DriveOpenLoop;
+import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.DriveTankOpenLoop;
 import frc.robot.subsystems.DriveBase;
 import edu.wpi.first.wpilibj2.command.Command;
 
@@ -17,17 +18,19 @@ import edu.wpi.first.wpilibj2.command.Command;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
-  // The robot's subsystems and commands are defined here...
+  // controllers
+  XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
+  // subsystems
   private final DriveBase driveBase = DriveBase.getInstance();
-  XboxController driver = new XboxController(0);
-  private final DriveOpenLoop driveOpenLoop = new DriveOpenLoop(driveBase, driver::getLeftY, driver::getRightY);
+  // commands
+  private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(driveBase, driver::getLeftX, driver::getRightY);
   
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     // Configure the button bindings
     configureButtonBindings();
-    driveBase.setDefaultCommand(driveOpenLoop);
+    driveBase.setDefaultCommand(arcadeCommand);
   }
 
   /**
