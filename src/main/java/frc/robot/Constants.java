@@ -40,6 +40,9 @@ public final class Constants {
         public static final double driveRampRate = 2;
         public static final double DriveWheelDiameterInches = 0;
         public static final int DriverControllerId = 0;
+        public static final double MinAutoTurnRate = 0.2;
+        public static final double NormalAutoTurnRate = 0;
+        public static final int AutoTurnDeadbandDegrees = 0;
 
     }
 }

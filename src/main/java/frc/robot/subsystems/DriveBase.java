@@ -30,7 +30,7 @@ public class DriveBase extends SubsystemBase {
   // imu
   private AHRS gyro;
   // rio
-  private DigitalInput leftBarSensor, rightBarSensor;
+  //private DigitalInput leftBarSensor, rightBarSensor;
   private static DriveBase instance;
   private boolean isHighGear = false;
   private DriveControlMode driveControlMode;
@@ -74,8 +74,8 @@ public class DriveBase extends SubsystemBase {
 
     gyro = new AHRS(Port.kMXP);
 
-    leftBarSensor = new DigitalInput(Constants.Drive.LeftPhotoeyePort);
-    rightBarSensor = new DigitalInput(Constants.Drive.RightPhotoeyePort);
+    //leftBarSensor = new DigitalInput(Constants.Drive.LeftPhotoeyePort);
+    //rightBarSensor = new DigitalInput(Constants.Drive.RightPhotoeyePort);
     
     // set motor status update rate at 100Hz (every 10ms) and contents to primary PID selected sensor feedback
     leftLeader.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
@@ -169,8 +169,8 @@ public class DriveBase extends SubsystemBase {
 
     // square inputs (but keep the sign) to increase fine control
     if (squareInputs) {
-      throttle = Math.copySign(throttle * throttle, throttle);
-      turn = Math.copySign(turn * turn, turn);
+      throttle = Math.abs(throttle) * throttle;
+      turn = Math.abs(turn) * turn;
     }
 
     double leftMotorDemand, rightMotorDemand;
@@ -227,7 +227,21 @@ public class DriveBase extends SubsystemBase {
 
   private double applyDeadband(double value, double deadband)
   {
-    return value;
+    if (Math.abs(value) > deadband) 
+    {
+      if (value > 0.0) 
+      {
+        return (value - deadband) / (1.0 - deadband);
+      }
+      else
+      {
+        return (value + deadband) / (1.0 - deadband);
+      }
+    }
+    else
+    {
+      return 0.0;
+    }
   }
 
   private double[] normalize(double[] motorSpeeds)
@@ -248,9 +262,9 @@ public class DriveBase extends SubsystemBase {
     return motorSpeeds;
   }
 
-  public void setGear(boolean highGearOn)
+  public void toggleGear()
   {
-    isHighGear = highGearOn;
+    isHighGear = !isHighGear;
     shifter.set(isHighGear);
   }
 
@@ -263,6 +277,4 @@ public class DriveBase extends SubsystemBase {
   {
     return driveControlMode;
   }
-
-  
 }
