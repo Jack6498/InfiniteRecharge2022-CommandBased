@@ -4,27 +4,37 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.util.MathUtils.applyDeadband;
+import static frc.robot.util.MathUtils.clamp;
+import static frc.robot.util.MathUtils.normalize;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
+import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj2.command.PIDSubsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.helpers.DriveSignal;
+import frc.robot.util.DriveSignal;
 
-public class DriveBase extends SubsystemBase {
+public class DriveBase extends PIDSubsystem {
   // hardware
   // motors
   private TalonFX leftLeader, rightLeader;
   private TalonFX leftFollower, rightFollower;
+  MotorControllerGroup leftMotors, rightMotors;
   // pneumatics
   private Solenoid shifter; // gear shifter
   // imu
@@ -35,6 +45,7 @@ public class DriveBase extends SubsystemBase {
   private boolean isHighGear = false;
   private DriveControlMode driveControlMode;
   private boolean brakeEngaged = true; //  we are braking by default
+
 
   /**
    * Driving Mode<p>
@@ -59,20 +70,22 @@ public class DriveBase extends SubsystemBase {
 
   private DriveBase()
   {
+    super(new PIDController(Constants.Drive.VelocityControlkP, 0, 0));
     leftLeader = new TalonFX(Constants.Drive.LeftLeaderId);
     leftFollower = new TalonFX(Constants.Drive.LeftFollowerId);
     rightLeader = new TalonFX(Constants.Drive.RightLeaderId);
     rightFollower = new TalonFX(Constants.Drive.RightFollowerId);
 
-    leftLeader.configOpenloopRamp(Constants.Drive.driveRampRate);
-    leftFollower.configOpenloopRamp(Constants.Drive.driveRampRate);
-    rightLeader.configOpenloopRamp(Constants.Drive.driveRampRate);
-    rightFollower.configOpenloopRamp(Constants.Drive.driveRampRate);
+    leftLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
+    leftFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
+    rightLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
+    rightFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
 
     gyro = new AHRS(Port.kMXP);
+    gyro.reset();
 
     //leftBarSensor = new DigitalInput(Constants.Drive.LeftPhotoeyePort);
     //rightBarSensor = new DigitalInput(Constants.Drive.RightPhotoeyePort);
@@ -81,10 +94,10 @@ public class DriveBase extends SubsystemBase {
     leftLeader.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
     rightLeader.setStatusFramePeriod(StatusFrame.Status_2_Feedback0, 10);
 
-    shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Drive.ShifterSolenoidId);
+    //shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Drive.ShifterSolenoidId);
 
     // engage brakes when neutral input
-    setBrakeMode(true);
+    setBrakeMode(false);
 
     // setup encoders
     leftLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -97,17 +110,13 @@ public class DriveBase extends SubsystemBase {
     rightLeader.setSensorPhase(false);
     rightLeader.setInverted(false);
     rightFollower.setInverted(false);
-
-    // load velocity PID gains
-    leftLeader = tunePID(leftLeader, Constants.Drive.VelocityControlSlot, Constants.Drive.VelocityControlkP, Constants.Drive.VelocityControlkI, Constants.Drive.VelocityControlkD, Constants.Drive.VelocityControlkF, Constants.Drive.VelocityControlIZone, Constants.Drive.VelocityControlRampRate);
-    rightLeader = tunePID(rightLeader, Constants.Drive.VelocityControlSlot, Constants.Drive.VelocityControlkP, Constants.Drive.VelocityControlkI, Constants.Drive.VelocityControlkD, Constants.Drive.VelocityControlkF, Constants.Drive.VelocityControlIZone, Constants.Drive.VelocityControlRampRate);
-    // load base lock PID gains
-    leftLeader = tunePID(leftLeader, Constants.Drive.BaseLockSlot, Constants.Drive.BaseLock_kP, Constants.Drive.BaseLock_kI, Constants.Drive.BaseLock_kD, Constants.Drive.BaseLock_kF, Constants.Drive.BaseLockIZone, Constants.Drive.BaseLockRampRate);
-    rightLeader = tunePID(rightLeader, Constants.Drive.BaseLockSlot, Constants.Drive.BaseLock_kP, Constants.Drive.BaseLock_kI, Constants.Drive.BaseLock_kD, Constants.Drive.BaseLock_kF, Constants.Drive.BaseLockIZone, Constants.Drive.BaseLockRampRate);
+    
+    //leftMotors = new MotorControllerGroup((WPI_TalonFX)leftLeader, (WPI_TalonFX)leftFollower);
+    //rightMotors = new MotorControllerGroup((WPI_TalonFX)rightLeader, (WPI_TalonFX)rightFollower);
   }
 
   // hardware methods
-  public static TalonFX tunePID(final TalonFX talon, final int slotId, final double P, final double I, final double D, final double F, final int iZone, final double rampRate)
+  public static TalonFX tunePID(final TalonFX talon, final int slotId, final double P, final double I, final double D, final double F, final double iZone, final double rampRate)
   {
     talon.config_kP(slotId, P);
     talon.config_kI(slotId, I);
@@ -208,59 +217,7 @@ public class DriveBase extends SubsystemBase {
     setTankDrive(new DriveSignal(stickSpeeds[0], stickSpeeds[1]));
   }
 
-  private double clamp(double value)
-  {
-    if (value > 1.0) 
-    {
-      return 1.0;
-    } 
-    else if (value < -1.0)
-    {
-      return -1.0;
-    }
-    else
-    {
-      return value;
-    }
-
-  }
-
-  private double applyDeadband(double value, double deadband)
-  {
-    if (Math.abs(value) > deadband) 
-    {
-      if (value > 0.0) 
-      {
-        return (value - deadband) / (1.0 - deadband);
-      }
-      else
-      {
-        return (value + deadband) / (1.0 - deadband);
-      }
-    }
-    else
-    {
-      return 0.0;
-    }
-  }
-
-  private double[] normalize(double[] motorSpeeds)
-  {
-    double max = Math.abs(motorSpeeds[0]);
-    boolean normFlag = max > 1; // do we normalize or just pass it back?
-    for (int i = 1; i < motorSpeeds.length; i++) {
-      if (Math.abs(motorSpeeds[i]) > max) { // set max to biggest magnitude motor speed
-        max = Math.abs(motorSpeeds[i]);
-        normFlag = max > 1;
-      }
-    }
-    if (normFlag) { // normalize speeds
-      for (int i = 0; i < motorSpeeds.length; i++) {
-        motorSpeeds[i] /= max;
-      }
-    }
-    return motorSpeeds;
-  }
+  
 
   public void toggleGear()
   {
@@ -276,5 +233,36 @@ public class DriveBase extends SubsystemBase {
   public DriveControlMode getControlMode()
   {
     return driveControlMode;
+  }
+
+  public void stop()
+  {
+    setTankDrive(DriveSignal.NEUTRAL);
+  }
+
+  public double getEncoderPosition()
+  {
+    return ((leftLeader.getSelectedSensorPosition() + leftFollower.getSelectedSensorPosition()) / 2) 
+      + ((rightLeader.getSelectedSensorPosition() + rightFollower.getSelectedSensorPosition()) / 2);
+  }
+
+  public WPI_TalonFX[] getWPIMotors()
+  {
+    WPI_TalonFX[] motors = new WPI_TalonFX[4];
+    motors[0] = (WPI_TalonFX)leftLeader;
+    motors[1] = (WPI_TalonFX)leftFollower;
+    motors[2] = (WPI_TalonFX)rightLeader;
+    motors[3] = (WPI_TalonFX)rightFollower;
+    return motors;
+  }
+
+  @Override
+  protected void useOutput(double output, double setpoint) {
+    setTankDrive(new DriveSignal(output, output));
+  }
+
+  @Override
+  protected double getMeasurement() {
+    return leftLeader.getSelectedSensorVelocity();
   }
 }

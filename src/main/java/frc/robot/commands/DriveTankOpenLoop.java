@@ -7,8 +7,8 @@ package frc.robot.commands;
 import java.util.function.DoubleSupplier;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.helpers.DriveSignal;
 import frc.robot.subsystems.DriveBase;
+import frc.robot.util.DriveSignal;
 
 public class DriveTankOpenLoop extends CommandBase {
   /** Creates a new DriveOpenLoop. */
