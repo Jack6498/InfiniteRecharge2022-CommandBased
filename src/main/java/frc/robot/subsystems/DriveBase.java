@@ -4,9 +4,9 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.util.MathUtils.applyDeadband;
-import static frc.robot.util.MathUtils.clamp;
-import static frc.robot.util.MathUtils.normalize;
+import static frc.surpriselib.MathUtils.applyDeadband;
+import static frc.surpriselib.MathUtils.clamp;
+import static frc.surpriselib.MathUtils.normalize;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
@@ -18,16 +18,15 @@ import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.PIDSubsystem;
-import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.util.DriveSignal;
+import frc.robot.RobotContainer;
+import frc.surpriselib.DriveSignal;
 
 public class DriveBase extends PIDSubsystem {
   // hardware
@@ -45,7 +44,8 @@ public class DriveBase extends PIDSubsystem {
   private boolean isHighGear = false;
   private DriveControlMode driveControlMode;
   private boolean brakeEngaged = true; //  we are braking by default
-
+  private ShuffleboardTab board = RobotContainer.getDriveTab();
+  private NetworkTableEntry gyroAngleEntry, leftDemandEntry, rightDemandEntry;
 
   /**
    * Driving Mode<p>
@@ -110,7 +110,9 @@ public class DriveBase extends PIDSubsystem {
     rightLeader.setSensorPhase(false);
     rightLeader.setInverted(false);
     rightFollower.setInverted(false);
-    
+
+    gyroAngleEntry = board.add("Gyro Angle", getGyroAngle().getDegrees()).getEntry();
+    //leftDemandEntry = board.add("title", defaultValue)
     //leftMotors = new MotorControllerGroup((WPI_TalonFX)leftLeader, (WPI_TalonFX)leftFollower);
     //rightMotors = new MotorControllerGroup((WPI_TalonFX)rightLeader, (WPI_TalonFX)rightFollower);
   }
@@ -175,6 +177,8 @@ public class DriveBase extends PIDSubsystem {
   {
     throttle = applyDeadband(clamp(throttle), 0.05);
     turn = applyDeadband(clamp(turn), 0.05);
+    System.out.println("T " + throttle);
+    System.out.println("R " + turn);
 
     // square inputs (but keep the sign) to increase fine control
     if (squareInputs) {

@@ -4,13 +4,14 @@
 
 package frc.robot.commands.auto;
 
-import frc.robot.Constants.Drive;
-import frc.robot.util.DriveSignal;
-import frc.robot.util.MathUtils;
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.Constants;
 import frc.robot.subsystems.DriveBase;
+import frc.surpriselib.DriveSignal;
+import frc.surpriselib.MathUtils;
 
 public class TurnAngle extends CommandBase {
   /** Creates a new TurnAngle. */
@@ -38,20 +39,37 @@ public class TurnAngle extends CommandBase {
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
+    // how far off are we
     error = gyroSetpoint - driveBase.getGyroAngle().getDegrees();
-    double steer = MathUtils.clamp(turnPID.calculate(error));
+    // get steering command
+    double steer = MathUtils.clamp(turnPID.calculate(error, 0));
+    // send steering command
+    driveBase.setTankDrive(new DriveSignal(-steer, steer));
+    // are we inside deadband
+    if (error < Constants.Drive.TurnInPlaceDeadband) {
+      if (timeInDeadband < 0) {
+        timeInDeadband = Timer.getFPGATimestamp();
+      }
+    }
+    else
+    {
+      timeInDeadband = -1;
+    }
+    SmartDashboard.putNumber("Gyro Angle", driveBase.getGyroAngle().getDegrees());
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    log("TURN ENDED");
+    driveBase.setBrakeMode(false);
     driveBase.setTankDrive(DriveSignal.NEUTRAL);
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-
+    return (timeInDeadband > 0) && (timeInDeadband + 0.08 < Timer.getFPGATimestamp()) && (error < Constants.Drive.TurnInPlaceDeadband);
   }
 
   private void log(String message)
