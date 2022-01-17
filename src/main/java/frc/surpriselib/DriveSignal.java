@@ -4,19 +4,21 @@
 
 package frc.surpriselib;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import frc.robot.Constants;
 
 /** Add your docs here. */
 public class DriveSignal {
     public double leftMotor;
     public double rightMotor;
-    public boolean brakeMode;
+    public NeutralMode brakeMode;
 
-    public DriveSignal(double left, double right, boolean brakeOn)
+    public DriveSignal(double left, double right, NeutralMode brakeMode)
     {
         this.leftMotor = left;
         this.rightMotor = right;
-        this.brakeMode = brakeOn;
+        this.brakeMode = brakeMode;
     }
 
     public DriveSignal(double left, double right)
@@ -25,9 +27,9 @@ public class DriveSignal {
     }
 
     public static DriveSignal NEUTRAL = 
-    new DriveSignal(0, 0, false);
+    new DriveSignal(0, 0, NeutralMode.Coast);
     public static DriveSignal BRAKE = 
-    new DriveSignal(0, 0, true);
+    new DriveSignal(0, 0, NeutralMode.Brake);
 
     @Override
     public String toString()

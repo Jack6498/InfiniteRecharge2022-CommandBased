@@ -14,12 +14,14 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
+import com.fasterxml.jackson.databind.cfg.ConstructorDetector.SingleArgConstructor;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.networktables.NetworkTableEntry;
 import edu.wpi.first.wpilibj.SPI.Port;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
@@ -31,8 +33,8 @@ import frc.surpriselib.DriveSignal;
 public class DriveBase extends PIDSubsystem {
   // hardware
   // motors
-  private TalonFX leftLeader, rightLeader;
-  private TalonFX leftFollower, rightFollower;
+  private WPI_TalonFX leftLeader, rightLeader;
+  private WPI_TalonFX leftFollower, rightFollower;
   MotorControllerGroup leftMotors, rightMotors;
   // pneumatics
   private Solenoid shifter; // gear shifter
@@ -41,6 +43,8 @@ public class DriveBase extends PIDSubsystem {
   // rio
   //private DigitalInput leftBarSensor, rightBarSensor;
   private static DriveBase instance;
+
+  private DifferentialDrive diffDrive;
   private boolean isHighGear = false;
   private DriveControlMode driveControlMode;
   private boolean brakeEngaged = true; //  we are braking by default
@@ -71,10 +75,10 @@ public class DriveBase extends PIDSubsystem {
   private DriveBase()
   {
     super(new PIDController(Constants.Drive.VelocityControlkP, 0, 0));
-    leftLeader = new TalonFX(Constants.Drive.LeftLeaderId);
-    leftFollower = new TalonFX(Constants.Drive.LeftFollowerId);
-    rightLeader = new TalonFX(Constants.Drive.RightLeaderId);
-    rightFollower = new TalonFX(Constants.Drive.RightFollowerId);
+    leftLeader = new WPI_TalonFX(Constants.Drive.LeftLeaderId);
+    leftFollower = new WPI_TalonFX(Constants.Drive.LeftFollowerId);
+    rightLeader = new WPI_TalonFX(Constants.Drive.RightLeaderId);
+    rightFollower = new WPI_TalonFX(Constants.Drive.RightFollowerId);
 
     leftLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
     leftFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
@@ -83,6 +87,10 @@ public class DriveBase extends PIDSubsystem {
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
+
+    leftMotors = new MotorControllerGroup(leftLeader, leftFollower);
+    rightMotors = new MotorControllerGroup(rightLeader, rightFollower);
+    diffDrive = new DifferentialDrive(leftMotors, rightMotors);
 
     gyro = new AHRS(Port.kMXP);
     gyro.reset();
@@ -97,7 +105,7 @@ public class DriveBase extends PIDSubsystem {
     //shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Drive.ShifterSolenoidId);
 
     // engage brakes when neutral input
-    setBrakeMode(false);
+    setBrakeMode(NeutralMode.Brake);
 
     // setup encoders
     leftLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -147,18 +155,10 @@ public class DriveBase extends PIDSubsystem {
     return Rotation2d.fromDegrees(-gyro.getAngle());
   }
 
-  public void setBrakeMode(boolean brake_on)
+  public void setBrakeMode(NeutralMode brakeMode)
   {
-    if (brakeEngaged != brake_on) {
-      if (brake_on) {
-        leftLeader.setNeutralMode(NeutralMode.Brake);
-        rightLeader.setNeutralMode(NeutralMode.Brake);
-      } else {
-        leftLeader.setNeutralMode(NeutralMode.Coast);
-        rightLeader.setNeutralMode(NeutralMode.Coast);
-      }
-    }
-    brakeEngaged = brake_on;
+    leftLeader.setNeutralMode(brakeMode);
+    rightLeader.setNeutralMode(brakeMode);
   }
   
   // driving modes
@@ -168,12 +168,12 @@ public class DriveBase extends PIDSubsystem {
     {
       driveControlMode = DriveControlMode.OPEN_LOOP;
     }
-    leftLeader.set(ControlMode.PercentOutput, signal.leftMotor);
-    rightLeader.set(ControlMode.PercentOutput, signal.rightMotor);
+    diffDrive.tankDrive(signal.leftMotor, signal.rightMotor);
+    setBrakeMode(signal.brakeMode);
   }
 
   // blatantly stolen from Team 3494 (The Quadrangles) (love yall)
-  public void setArcadeDrive(double throttle, double turn, boolean squareInputs)
+  /*public void setArcadeDrive(double throttle, double turn, boolean squareInputs)
   {
     throttle = applyDeadband(clamp(throttle), 0.05);
     turn = applyDeadband(clamp(turn), 0.05);
@@ -219,8 +219,11 @@ public class DriveBase extends PIDSubsystem {
     }
     double[] stickSpeeds = normalize(new double[]{leftMotorDemand, rightMotorDemand});
     setTankDrive(new DriveSignal(stickSpeeds[0], stickSpeeds[1]));
+  }*/
+  public void setArcadeDrive(double throttle, double turn, boolean squareInputs)
+  {
+    diffDrive.arcadeDrive(throttle, turn, squareInputs);
   }
-
   
 
   public void toggleGear()

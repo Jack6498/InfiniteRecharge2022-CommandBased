@@ -4,7 +4,7 @@
 
 package frc.robot;
 
-import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
+import com.ctre.phoenix.motorcontrol.NeutralMode;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -16,7 +16,7 @@ import com.ctre.phoenix.motorcontrol.can.TalonFXConfiguration;
  */
 public final class Constants {
 
-    public final class Drive {
+    public static final class Drive {
 
         public static final int LeftLeaderId = 3;
         public static final int LeftFollowerId = 4;
@@ -39,7 +39,7 @@ public final class Constants {
         public static final double BaseLock_kF = 0;
         public static final double BaseLockIZone = 0;
         public static final double BaseLockRampRate = 0;
-        public static final boolean BrakeModeDefault = false;
+        public static final NeutralMode BrakeModeDefault = NeutralMode.Brake;
         public static final double DriveRampRate = 2;
         public static final double WheelDiameterInches = 0;
         public static final int DriverControllerId = 0;
@@ -55,6 +55,19 @@ public final class Constants {
         public static final double TurnAnglekI = 0;
         public static final double TurnAnglekD = 0;
         public static final double TurnInPlaceDeadband = 0;
+
+    }
+
+    public static final class Vision {
+
+        public static final String LimelightCameraName = "limelight";
+        public static final int AutoPipelineID = 0;
+        // Heights are in METERS
+        public static final double LimelightHeightFromField = 0;
+        public static final double UpperHubTargetHeight = 0;
+        // Pitches are in DEGREES
+        public static final double LimelightPitch = 0;
+        public static final double UpperHubTargetPitch = 0;
 
     }
 }
