@@ -7,6 +7,8 @@ package frc.robot;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
+import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.DriveArcadeOpenLoop;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
@@ -26,11 +28,14 @@ public class RobotContainer {
   // subsystems
   private final DriveBase driveBase = DriveBase.getInstance();
   // commands
-  private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(driveBase, driver::getLeftX, driver::getRightY);
+  private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(driveBase, driver::getLeftTriggerAxis, driver::getRightX);
   // auto commands
   // drive x distance
   // turn angle
+  TurnAngle angle = new TurnAngle(driveBase, 30);
   // follow path
+
+  private final static ShuffleboardTab driveTab = Shuffleboard.getTab("Debug Drive");
 
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
@@ -48,6 +53,7 @@ public class RobotContainer {
   private void configureButtonBindings() {
     // button commands
     new JoystickButton(driver, Button.kA.value).whenPressed(new InstantCommand(driveBase::toggleGear, driveBase));
+    new JoystickButton(driver, Button.kLeftBumper.value).whenPressed(angle);
   }
 
   /**
@@ -57,6 +63,11 @@ public class RobotContainer {
    */
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
-    return new TurnAngle(driveBase, 30);
+    return new TurnAngle(driveBase, 0);
+  }
+
+  public static ShuffleboardTab getDriveTab()
+  {
+    return driveTab;
   }
 }
