@@ -47,7 +47,7 @@ public class DriveBase extends SubsystemBase {
   // wpi sim
   DifferentialDrivetrainSim drivetrainSim;
   Field2d field = new Field2d();
-  DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(gyro.getRotation2d());
+  DifferentialDriveOdometry odometry;
 
   private DifferentialDrive diffDrive;
   private boolean isHighGear = false;
@@ -87,6 +87,7 @@ public class DriveBase extends SubsystemBase {
 
       gyro = new AHRS(Port.kMXP);
       gyro.reset();
+      odometry = new DifferentialDriveOdometry(gyro.getRotation2d());
     } else {
       leftDriveSim = leftLeader.getSimCollection();
       rightDriveSim = rightLeader.getSimCollection();
