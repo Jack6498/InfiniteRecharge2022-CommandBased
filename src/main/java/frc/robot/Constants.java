@@ -6,6 +6,14 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.math.Matrix;
+import edu.wpi.first.math.numbers.N1;
+import edu.wpi.first.math.numbers.N2;
+import edu.wpi.first.math.numbers.N7;
+import edu.wpi.first.math.system.LinearSystem;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
  * constants. This class should not be used for any other purpose. All constants should be declared
@@ -15,6 +23,8 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+
+    
 
     public static final class Drive {
 
@@ -41,7 +51,7 @@ public final class Constants {
         public static final double BaseLockRampRate = 0;
         public static final NeutralMode BrakeModeDefault = NeutralMode.Brake;
         public static final double DriveRampRate = 2;
-        public static final double WheelDiameterInches = 0;
+        public static final double WheelDiameterInches = 4;
         public static final int DriverControllerId = 0;
         public static final double MinAutoTurnRate = 0.2;
         public static final double NormalAutoTurnRate = 1;
@@ -50,11 +60,23 @@ public final class Constants {
         public static final double TicksPerRotation = 4096; // 4096 ticks per rotation
         // 4096 ticks per circumference travelled, so 4096/circumference = ticks per unit length
         public static final double EncoderTicksPerInch = TicksPerRotation / RotationsToInches; 
-        public static final double InchesToMeters = 0.0254;
         public static final double TurnAnglekP = 0;
         public static final double TurnAnglekI = 0;
         public static final double TurnAnglekD = 0;
         public static final double TurnInPlaceDeadband = 0;
+        public static final double GearRatio = 30;
+        public static final double TrackWidth = 0.5;
+        public static final double kVLinear = 0;
+        public static final double kALinear = 0;
+        public static final double kVAngular = 0;
+        public static final double kAAngular = 0;
+        public static final LinearSystem<N2, N2, N2> driveBaseSystem =
+            LinearSystemId.identifyDrivetrainSystem(
+                kVLinear, 
+                kALinear, 
+                kVAngular, 
+                kAAngular
+            );
 
     }
 

@@ -4,33 +4,34 @@
 
 package frc.robot.subsystems;
 
-import static frc.surpriselib.MathUtils.applyDeadband;
-import static frc.surpriselib.MathUtils.clamp;
-import static frc.surpriselib.MathUtils.normalize;
-
-import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.StatusFrame;
+import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
-import com.fasterxml.jackson.databind.cfg.ConstructorDetector.SingleArgConstructor;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.hal.SimDouble;
+import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.geometry.Rotation2d;
-import edu.wpi.first.networktables.NetworkTableEntry;
+import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.RobotBase;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj2.command.PIDSubsystem;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.surpriselib.DriveSignal;
 
-public class DriveBase extends PIDSubsystem {
+public class DriveBase extends SubsystemBase {
   // hardware
   // motors
   private WPI_TalonFX leftLeader, rightLeader;
@@ -40,18 +41,17 @@ public class DriveBase extends PIDSubsystem {
   private Solenoid shifter; // gear shifter
   // imu
   private AHRS gyro;
-  // rio
-  //private DigitalInput leftBarSensor, rightBarSensor;
-  private static DriveBase instance;
+  // ctre sim
+  TalonFXSimCollection leftDriveSim;
+  TalonFXSimCollection rightDriveSim;
+  // wpi sim
+  DifferentialDrivetrainSim drivetrainSim;
+  Field2d field = new Field2d();
+  DifferentialDriveOdometry odometry = new DifferentialDriveOdometry(gyro.getRotation2d());
 
   private DifferentialDrive diffDrive;
   private boolean isHighGear = false;
-  private DriveControlMode driveControlMode;
-  private boolean brakeEngaged = true; //  we are braking by default
-  private ShuffleboardTab board = RobotContainer.getDriveTab();
-  private NetworkTableEntry gyroAngleEntry, leftDemandEntry, rightDemandEntry;
-
-  /**
+  private DriveControlMode driveControlMode;  /**
    * Driving Mode<p>
    * Available Modes are Open Loop (Manual), Base Locked, Velocity Setpoint, and Trajectory Following.<p>
    * WARNING: ONLY OPEN LOOP IS CURRENTLY IMPLEMENTED
@@ -64,36 +64,41 @@ public class DriveBase extends PIDSubsystem {
     TRAJECTORY_FOLLOWING
   }
 
-  public static DriveBase getInstance()
+  public DriveBase()
   {
-    if (instance == null) {
-      instance = new DriveBase();
+    if (RobotBase.isReal()) 
+    {
+      leftLeader = new WPI_TalonFX(Constants.Drive.LeftLeaderId);
+      leftFollower = new WPI_TalonFX(Constants.Drive.LeftFollowerId);
+      rightLeader = new WPI_TalonFX(Constants.Drive.RightLeaderId);
+      rightFollower = new WPI_TalonFX(Constants.Drive.RightFollowerId);
+
+      leftLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
+      leftFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
+      rightLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
+      rightFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
+
+      leftFollower.follow(leftLeader);
+      rightFollower.follow(rightLeader);
+
+      leftMotors = new MotorControllerGroup(leftLeader, leftFollower);
+      rightMotors = new MotorControllerGroup(rightLeader, rightFollower);
+      diffDrive = new DifferentialDrive(leftMotors, rightMotors);
+
+      gyro = new AHRS(Port.kMXP);
+      gyro.reset();
+    } else {
+      leftDriveSim = leftLeader.getSimCollection();
+      rightDriveSim = rightLeader.getSimCollection();
+      drivetrainSim = new DifferentialDrivetrainSim(
+        Constants.Drive.driveBaseSystem,
+        DCMotor.getFalcon500(2),
+        Constants.Drive.GearRatio,
+        Units.inchesToMeters(Constants.Drive.TrackWidth),
+        Units.inchesToMeters(Constants.Drive.WheelDiameterInches/2),
+        null);
     }
-    return instance;
-  }
-
-  private DriveBase()
-  {
-    super(new PIDController(Constants.Drive.VelocityControlkP, 0, 0));
-    leftLeader = new WPI_TalonFX(Constants.Drive.LeftLeaderId);
-    leftFollower = new WPI_TalonFX(Constants.Drive.LeftFollowerId);
-    rightLeader = new WPI_TalonFX(Constants.Drive.RightLeaderId);
-    rightFollower = new WPI_TalonFX(Constants.Drive.RightFollowerId);
-
-    leftLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    leftFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    rightLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    rightFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
-
-    leftFollower.follow(leftLeader);
-    rightFollower.follow(rightLeader);
-
-    leftMotors = new MotorControllerGroup(leftLeader, leftFollower);
-    rightMotors = new MotorControllerGroup(rightLeader, rightFollower);
-    diffDrive = new DifferentialDrive(leftMotors, rightMotors);
-
-    gyro = new AHRS(Port.kMXP);
-    gyro.reset();
+    
 
     //leftBarSensor = new DigitalInput(Constants.Drive.LeftPhotoeyePort);
     //rightBarSensor = new DigitalInput(Constants.Drive.RightPhotoeyePort);
@@ -119,7 +124,7 @@ public class DriveBase extends PIDSubsystem {
     rightLeader.setInverted(false);
     rightFollower.setInverted(false);
 
-    gyroAngleEntry = board.add("Gyro Angle", getGyroAngle().getDegrees()).getEntry();
+    //gyroAngleEntry = board.add("Gyro Angle", getGyroAngle().getDegrees()).getEntry();
     //leftDemandEntry = board.add("title", defaultValue)
     //leftMotors = new MotorControllerGroup((WPI_TalonFX)leftLeader, (WPI_TalonFX)leftFollower);
     //rightMotors = new MotorControllerGroup((WPI_TalonFX)rightLeader, (WPI_TalonFX)rightFollower);
@@ -253,23 +258,13 @@ public class DriveBase extends PIDSubsystem {
       + ((rightLeader.getSelectedSensorPosition() + rightFollower.getSelectedSensorPosition()) / 2);
   }
 
-  public WPI_TalonFX[] getWPIMotors()
+  @Override
+  public void simulationPeriodic()
   {
-    WPI_TalonFX[] motors = new WPI_TalonFX[4];
-    motors[0] = (WPI_TalonFX)leftLeader;
-    motors[1] = (WPI_TalonFX)leftFollower;
-    motors[2] = (WPI_TalonFX)rightLeader;
-    motors[3] = (WPI_TalonFX)rightFollower;
-    return motors;
-  }
-
-  @Override
-  protected void useOutput(double output, double setpoint) {
-    setTankDrive(new DriveSignal(output, output));
-  }
-
-  @Override
-  protected double getMeasurement() {
-    return leftLeader.getSelectedSensorVelocity();
+    // navx sim
+    int dev = SimDeviceDataJNI.getSimDeviceHandle("navX-Sensor[0]");
+    SimDouble angle = new SimDouble(SimDeviceDataJNI.getSimValueHandle(dev, "Yaw"));
+    // navx expects clockwise postive, sim excepts vice versa
+    angle.set(Math.IEEEremainder(-drivetrainSim.getHeading().getDegrees(), 360));
   }
 }

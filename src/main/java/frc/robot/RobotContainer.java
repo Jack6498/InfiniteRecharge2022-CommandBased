@@ -26,7 +26,7 @@ public class RobotContainer {
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
-  private final DriveBase driveBase = DriveBase.getInstance();
+  private final DriveBase driveBase = new DriveBase();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(driveBase, driver::getLeftTriggerAxis, driver::getRightX);
   // auto commands

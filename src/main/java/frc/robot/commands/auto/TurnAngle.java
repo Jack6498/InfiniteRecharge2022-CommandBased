@@ -4,6 +4,8 @@
 
 package frc.robot.commands.auto;
 
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -62,7 +64,7 @@ public class TurnAngle extends CommandBase {
   @Override
   public void end(boolean interrupted) {
     log("TURN ENDED");
-    driveBase.setBrakeMode(false);
+    driveBase.setBrakeMode(NeutralMode.Brake);
     driveBase.setTankDrive(DriveSignal.NEUTRAL);
   }
 

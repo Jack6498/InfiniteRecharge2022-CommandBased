@@ -12,9 +12,6 @@ import frc.surpriselib.DriveSignal;
 public class DriveDistance extends CommandBase {
   DriveBase driveBase;
   double dist;
-  double encoderInitialDistance;
-  double encoderCurrentDistance;
-  double encoderGoalDistance;
   double speed;
 
   /** Creates a new DriveDistance. */
@@ -23,29 +20,18 @@ public class DriveDistance extends CommandBase {
     driveBase = drive;
     addRequirements(driveBase);
     dist = distanceInches;
-    driveBase.setSetpoint(robotSpeed);
   }
 
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    encoderInitialDistance = driveBase.getEncoderPosition();
-    encoderGoalDistance = Math.abs(dist) * Constants.Drive.EncoderTicksPerInch;
-    encoderCurrentDistance = 0;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() 
   {
-    encoderCurrentDistance = Math.abs(driveBase.getEncoderPosition() - encoderInitialDistance);
 
-    // if we are within 12 inches, slow down
-    if (encoderCurrentDistance > (Math.abs(encoderGoalDistance) - Constants.Drive.EncoderTicksPerInch * 12)) {
-      
-    }
-
-    driveBase.setTankDrive(new DriveSignal(speed, speed));
   }
 
   // Called once the command ends or is interrupted.
