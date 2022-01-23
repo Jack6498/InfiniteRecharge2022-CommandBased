@@ -6,20 +6,22 @@ package frc.robot.commands;
 
 import java.util.function.DoubleSupplier;
 
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.DriveBase;
 
 public class DriveArcadeOpenLoop extends CommandBase {
   /** Creates a new DriveArcade. */
   DriveBase driveBase;
-  DoubleSupplier throttle, turn;
+  DoubleSupplier forward, turn, reverse;
   
-  public DriveArcadeOpenLoop(DriveBase drive, DoubleSupplier throttle, DoubleSupplier turn) {
+  public DriveArcadeOpenLoop(DriveBase drive, DoubleSupplier forward, DoubleSupplier turn, DoubleSupplier reverse) {
     // Use addRequirements() here to declare subsystem dependencies.
     driveBase = drive;
     // "this.thing" specifies that we mean the variable that is part of the class, not the constructor argument
-    this.throttle = throttle;
+    this.forward = forward;
     this.turn = turn;
+    this.reverse = reverse;
     addRequirements(driveBase);
   }
 
@@ -27,7 +29,11 @@ public class DriveArcadeOpenLoop extends CommandBase {
   @Override
   public void execute() 
   {
-    driveBase.setArcadeDrive(throttle.getAsDouble(), turn.getAsDouble(), false);
+    driveBase.arcadeDrive(
+      MathUtil.applyDeadband(forward.getAsDouble(), 0.02) + 
+      -MathUtil.applyDeadband(reverse.getAsDouble(), 0.02), 
+      turn.getAsDouble()
+    );
   }
 
   // Returns true when the command should end.
