@@ -28,7 +28,13 @@ public class RobotContainer {
   // subsystems
   private final DriveBase driveBase = new DriveBase();
   // commands
-  private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(driveBase, driver::getLeftTriggerAxis, driver::getRightX);
+  private final DriveArcadeOpenLoop arcadeCommand = 
+    new DriveArcadeOpenLoop(
+      driveBase, 
+      driver::getLeftTriggerAxis, 
+      driver::getRightX, 
+      driver::getRightTriggerAxis
+    );
   // auto commands
   // drive x distance
   // turn angle
