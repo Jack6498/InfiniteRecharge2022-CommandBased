@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.DriveArcadeOpenLoop;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
+import io.github.oblarg.oblog.Logger;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
@@ -41,10 +42,9 @@ public class RobotContainer {
   TurnAngle angle = new TurnAngle(driveBase, 30);
   // follow path
 
-  private final static ShuffleboardTab driveTab = Shuffleboard.getTab("Debug Drive");
-
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
+    Logger.configureLoggingAndConfig(this, false);
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
@@ -70,10 +70,5 @@ public class RobotContainer {
   public Command getAutonomousCommand() {
     // An ExampleCommand will run in autonomous
     return new TurnAngle(driveBase, 0);
-  }
-
-  public static ShuffleboardTab getDriveTab()
-  {
-    return driveTab;
   }
 }

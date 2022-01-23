@@ -35,6 +35,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.RobotContainer;
 import frc.surpriselib.DriveSignal;
+import io.github.oblarg.oblog.annotations.Log;
 
 public class DriveBase extends SubsystemBase {
   // motors
@@ -161,5 +162,10 @@ public class DriveBase extends SubsystemBase {
   {
     return ((leftLeader.getSelectedSensorPosition() + leftFollower.getSelectedSensorPosition()) / 2) 
       + ((rightLeader.getSelectedSensorPosition() + rightFollower.getSelectedSensorPosition()) / 2);
+  }
+
+  @Log(name = "Yaw (deg.)")
+  public double getGyroAngleDegrees() {
+    return getGyroAngle().getDegrees();
   }
 }
