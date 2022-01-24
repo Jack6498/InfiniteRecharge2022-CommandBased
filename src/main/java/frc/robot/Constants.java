@@ -6,12 +6,8 @@ package frc.robot;
 
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
-import edu.wpi.first.math.Matrix;
-import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N2;
-import edu.wpi.first.math.numbers.N7;
 import edu.wpi.first.math.system.LinearSystem;
-import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 
 /**
@@ -63,7 +59,7 @@ public final class Constants {
         public static final double TurnAnglekP = 0;
         public static final double TurnAnglekI = 0;
         public static final double TurnAnglekD = 0;
-        public static final double TurnInPlaceDeadband = 0;
+        public static final double TurnInPlaceDeadband = 0.1;
         public static final double GearRatio = 30;
         public static final double TrackWidth = 0.5;
         public static final double kVLinear = 0;

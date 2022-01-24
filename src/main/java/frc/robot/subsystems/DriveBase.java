@@ -7,33 +7,20 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
-import com.ctre.phoenix.motorcontrol.StatusFrame;
-import com.ctre.phoenix.motorcontrol.TalonFXSimCollection;
-import com.ctre.phoenix.motorcontrol.can.TalonFX;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
-import edu.wpi.first.hal.SimDouble;
-import edu.wpi.first.hal.simulation.SimDeviceDataJNI;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.math.kinematics.DifferentialDriveWheelSpeeds;
-import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.util.Units;
-import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
-import edu.wpi.first.wpilibj.RobotBase;
+import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
-import frc.robot.RobotContainer;
 import frc.surpriselib.DriveSignal;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -60,8 +47,7 @@ public class DriveBase extends SubsystemBase {
   public enum DriveControlMode
   {
     OPEN_LOOP, 
-    BASE_LOCKED, 
-    VELOCITY_SETPOINT, 
+    BASE_LOCKED,
     TRAJECTORY_FOLLOWING
   }
 
@@ -112,7 +98,16 @@ public class DriveBase extends SubsystemBase {
   public Rotation2d getGyroAngle()
   {
     // negative angle because of the direction the gyro is mounted
-    return Rotation2d.fromDegrees(-gyro.getAngle());
+    return Rotation2d.fromDegrees(gyro.getAngle());
+  }
+
+
+  public double getHeading() {
+    return getGyroAngle().getDegrees();
+  }
+
+  public double getTurnRate() {
+    return gyro.getRate();
   }
 
   public void setBrakeMode(NeutralMode brakeMode)
@@ -148,6 +143,7 @@ public class DriveBase extends SubsystemBase {
     shifter.set(isHighGear);
   }
 
+  @Log(name="Gear")
   public boolean getGear()
   {
     return isHighGear;
@@ -164,8 +160,28 @@ public class DriveBase extends SubsystemBase {
       + ((rightLeader.getSelectedSensorPosition() + rightFollower.getSelectedSensorPosition()) / 2);
   }
 
+  @Log(name = "Compressor Running")
+  public boolean getPressure() {
+    return compressor.enabled();
+  }
+
   @Log(name = "Yaw (deg.)")
   public double getGyroAngleDegrees() {
     return getGyroAngle().getDegrees();
+  }
+
+  @Override
+  public void periodic() {
+    odometry.update(
+      gyro.getRotation2d(), 
+      leftLeader.getSelectedSensorPosition(), 
+      rightLeader.getSelectedSensorPosition()
+    );
+  }
+
+  // ctre sensor units -> meters
+  // driver : driven -> 2048 : x
+  public void getMotorMeters(double units) {
+
   }
 }
