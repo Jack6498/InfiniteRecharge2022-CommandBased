@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.DriveBase;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
+import io.github.oblarg.oblog.annotations.Log;
 
 public class TurnAngle extends PIDCommand implements Loggable {
   private final DriveBase driveBase;
@@ -49,9 +50,15 @@ public class TurnAngle extends PIDCommand implements Loggable {
     driveBase.arcadeDrive(0, 0);
   }
 
+  @Log
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
     return pid.atSetpoint();
+  }
+
+  @Log
+  public double getAngularError() {
+    return pid.getPositionError();
   }
 }
