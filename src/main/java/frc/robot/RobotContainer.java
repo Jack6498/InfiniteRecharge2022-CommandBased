@@ -4,11 +4,10 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.shuffleboard.Shuffleboard;
-import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import frc.robot.commands.DriveArcadeOpenLoop;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
@@ -41,7 +40,7 @@ public class RobotContainer {
   // turn angle
   TurnAngle angle = new TurnAngle(driveBase, 30);
   // follow path
-
+  public DriverStation.Alliance startPosition;
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.configureLoggingAndConfig(this, false);
