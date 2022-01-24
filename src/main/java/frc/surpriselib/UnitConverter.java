@@ -11,19 +11,19 @@ import frc.robot.Constants;
 */
 public class UnitConverter {
     
-    private static double rotationsToInches(final double rotations) {
+    public static double rotationsToInches(final double rotations) {
         return rotations * (Constants.Drive.WheelDiameterInches * Math.PI);
     }
 
-    private static double rpmToInchesPerSecond(final double rpm) {
+    public static double rpmToInchesPerSecond(final double rpm) {
         return rotationsToInches(rpm) / 60;
     }
 
-    private static double inchesToRotations(final double inches) {
+    public static double inchesToRotations(final double inches) {
         return inches / (Constants.Drive.WheelDiameterInches * Math.PI);
     }
 
-    private static double inchesPerSecondToRpm(final double inchesPerSecond) {
+    public static double inchesPerSecondToRpm(final double inchesPerSecond) {
         return inchesToRotations(inchesPerSecond) * 60;
     }
 }

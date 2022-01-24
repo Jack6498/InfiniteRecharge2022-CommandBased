@@ -52,7 +52,7 @@ public class VisionSystem extends SubsystemBase {
    * 
    * @return Distance to the current pipeline's best target, for input to a PID controller (for shooting)
    */
-  private double getTargetDistance()
+  public double getTargetDistance()
   {
     return PhotonUtils.calculateDistanceToTargetMeters(
       Constants.Vision.LimelightHeightFromField, 
