@@ -5,9 +5,7 @@
 package frc.robot.commands.auto;
 
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import frc.robot.Constants;
 import frc.robot.subsystems.DriveBase;
-import frc.surpriselib.DriveSignal;
 
 public class DriveDistance extends CommandBase {
   DriveBase driveBase;
