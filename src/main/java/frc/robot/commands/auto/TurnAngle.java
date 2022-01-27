@@ -27,7 +27,7 @@ public class TurnAngle extends PIDCommand implements Loggable {
     super(
       new PIDController(TurnAnglekP, TurnAnglekI, TurnAnglekD), 
       drive::getHeading, 
-      angle, 
+      drive.getHeading() - angle, 
       output -> {
         if (output > 0) { // turn clockwise
           drive.arcadeDrive(0, output);
@@ -40,13 +40,13 @@ public class TurnAngle extends PIDCommand implements Loggable {
       pid = getController();
       // working with angles so we want to wrap
       pid.enableContinuousInput(-180, 180);
-      pid.setTolerance(TurnInPlaceDeadband, 5);
+      pid.setTolerance(TurnInPlaceDeadband, 1);
   }
 
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    driveBase.setBrakeMode(NeutralMode.Brake);
+    driveBase.setBrakeMode(NeutralMode.Coast);
     driveBase.arcadeDrive(0, 0);
   }
 
