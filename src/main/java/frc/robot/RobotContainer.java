@@ -9,14 +9,19 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.auto.DriveDistanceProfiled;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
 import static frc.robot.Constants.Drive.*;
 import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
 /**
@@ -26,6 +31,8 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  @Log
+  SendableChooser<Command> autoChooser = new SendableChooser<>();
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
@@ -44,12 +51,24 @@ public class RobotContainer {
   TurnAngle angle = new TurnAngle(driveBase, 30);
   // follow path
   public DriverStation.Alliance startPosition;
+
+  private SequentialCommandGroup simplestAuto = 
+    new SequentialCommandGroup(
+      new WaitCommand(1),
+      new DriveDistanceProfiled(driveBase, 1),
+      new TurnAngle(driveBase, 30),
+      new WaitCommand(1)
+    );
+  
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.configureLoggingAndConfig(this, false);
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
+
+    // configure autos
+    autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);
   }
 
   /**
@@ -71,14 +90,13 @@ public class RobotContainer {
         driveBase)
       );
   }
-
+  
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An ExampleCommand will run in autonomous
-    return new TurnAngle(driveBase, 0);
+    return autoChooser.getSelected();
   }
 }
