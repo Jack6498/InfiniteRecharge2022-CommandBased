@@ -4,15 +4,28 @@
 
 package frc.robot.subsystems;
 
+import static frc.robot.Constants.Drive.DriveRampRate;
+import static frc.robot.Constants.Drive.LeftFollowerId;
+import static frc.robot.Constants.Drive.LeftLeaderId;
+import static frc.robot.Constants.Drive.RightFollowerId;
+import static frc.robot.Constants.Drive.RightLeaderId;
+import static frc.robot.Constants.Drive.ShifterSolenoidId;
+import static frc.robot.Constants.Drive.kALinear;
+import static frc.robot.Constants.Drive.kS;
+import static frc.robot.Constants.Drive.kVLinear;
+
 import com.ctre.phoenix.motorcontrol.ControlMode;
+import com.ctre.phoenix.motorcontrol.DemandType;
 import com.ctre.phoenix.motorcontrol.FeedbackDevice;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_TalonFX;
 import com.kauailabs.navx.frc.AHRS;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI.Port;
@@ -20,25 +33,32 @@ import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.robot.Constants;
 import frc.surpriselib.DriveSignal;
+import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
-public class DriveBase extends SubsystemBase {
+public class DriveBase extends SubsystemBase implements Loggable{
   // motors
   private WPI_TalonFX leftLeader, rightLeader;
   private WPI_TalonFX leftFollower, rightFollower;
   private MotorControllerGroup leftMotors, rightMotors;
   private DifferentialDriveOdometry odometry;
   private DifferentialDrive diffDrive;
-  // pneumatics
+  // 
+  @Log
   private Solenoid shifter; // gear shifter
   private Compressor compressor;
   // imu
   private AHRS gyro;
-
+  
   private boolean isHighGear = false;
   private DriveControlMode driveControlMode;
+  private final SimpleMotorFeedforward driveFeedforward =
+    new SimpleMotorFeedforward(
+      kS,
+      kVLinear,
+      kALinear
+    );
   /**
    * Driving Mode<p>
    * Available Modes are Open Loop (Manual), Base Locked, and Trajectory Following.<p>
@@ -53,15 +73,15 @@ public class DriveBase extends SubsystemBase {
 
   public DriveBase()
   {
-    leftLeader = new WPI_TalonFX(Constants.Drive.LeftLeaderId);
-    leftFollower = new WPI_TalonFX(Constants.Drive.LeftFollowerId);
-    rightLeader = new WPI_TalonFX(Constants.Drive.RightLeaderId);
-    rightFollower = new WPI_TalonFX(Constants.Drive.RightFollowerId);
+    leftLeader = new WPI_TalonFX(LeftLeaderId);
+    leftFollower = new WPI_TalonFX(LeftFollowerId);
+    rightLeader = new WPI_TalonFX(RightLeaderId);
+    rightFollower = new WPI_TalonFX(RightFollowerId);
 
-    leftLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    leftFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    rightLeader.configOpenloopRamp(Constants.Drive.DriveRampRate);
-    rightFollower.configOpenloopRamp(Constants.Drive.DriveRampRate);
+    leftLeader.configOpenloopRamp(DriveRampRate);
+    leftFollower.configOpenloopRamp(DriveRampRate);
+    rightLeader.configOpenloopRamp(DriveRampRate);
+    rightFollower.configOpenloopRamp(DriveRampRate);
 
     leftFollower.follow(leftLeader);
     rightFollower.follow(rightLeader);
@@ -70,16 +90,17 @@ public class DriveBase extends SubsystemBase {
     rightMotors = new MotorControllerGroup(rightLeader, rightFollower);
     rightMotors.setInverted(true);
     diffDrive = new DifferentialDrive(leftMotors, rightMotors);
+    diffDrive.setSafetyEnabled(false);
 
     gyro = new AHRS(Port.kMXP);
     gyro.reset();
     odometry = new DifferentialDriveOdometry(gyro.getRotation2d());
 
     compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-    shifter = new Solenoid(PneumaticsModuleType.CTREPCM, Constants.Drive.ShifterSolenoidId);
+    shifter = new Solenoid(PneumaticsModuleType.CTREPCM, ShifterSolenoidId);
 
     // engage brakes when neutral input
-    setBrakeMode(NeutralMode.Brake);
+    setBrakeMode(NeutralMode.Coast);
 
     // setup encoders
     leftLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
@@ -102,6 +123,7 @@ public class DriveBase extends SubsystemBase {
   }
 
 
+  @Log
   public double getHeading() {
     return getGyroAngle().getDegrees();
   }
@@ -127,7 +149,7 @@ public class DriveBase extends SubsystemBase {
     setBrakeMode(signal.brakeMode);
   }
 
-  public void arcadeDrive(double throttle, double turn)
+  public void arcadeDriveIK(double throttle, double turn)
   {
     throttle = MathUtil.applyDeadband(throttle, 0.05);
     turn = MathUtil.applyDeadband(turn, 0.05);
@@ -137,13 +159,22 @@ public class DriveBase extends SubsystemBase {
     leftLeader.set(ControlMode.PercentOutput, speeds.right);
   }
 
-  public void toggleGear()
-  {
-    isHighGear = !isHighGear;
-    shifter.set(isHighGear);
+  public void arcadeDrive(double throttle, double turn) {
+    diffDrive.arcadeDrive(throttle, turn, true);
   }
 
-  @Log(name="Gear")
+  public void toggleGear()
+  {
+    if (isHighGear) {
+      shifter.set(false);
+      isHighGear = false;
+    } else {
+      shifter.set(true);
+      isHighGear = true;
+    }
+  }
+
+  @Log(name="Gear", tabName="DriveBase")
   public boolean getGear()
   {
     return isHighGear;
@@ -179,9 +210,29 @@ public class DriveBase extends SubsystemBase {
     );
   }
 
-  // ctre sensor units -> meters
-  // driver : driven -> 2048 : x
-  public void getMotorMeters(double units) {
+  @Log.Graph
+  public double getLeftVelocity() {
+    return leftLeader.getSelectedSensorVelocity();
+  }
 
+  @Log.Graph
+  public double getRightVelocity() {
+    return rightLeader.getSelectedSensorVelocity();
+  }
+
+  public void consumeTrapezoidState(TrapezoidProfile.State leftProfileState, TrapezoidProfile.State rightProfileState) {
+    leftLeader.set(
+      ControlMode.Position,
+      leftProfileState.position,
+      DemandType.ArbitraryFeedForward,
+      driveFeedforward.calculate(leftProfileState.velocity)
+    );
+
+    rightLeader.set(
+      ControlMode.Position,
+      rightProfileState.position,
+      DemandType.ArbitraryFeedForward,
+      driveFeedforward.calculate(rightProfileState.velocity)
+    );
   }
 }

@@ -9,6 +9,7 @@ import com.ctre.phoenix.motorcontrol.NeutralMode;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.math.util.Units;
 
 /**
  * The Constants class provides a convenient place for teams to hold robot-wide numerical or boolean
@@ -47,21 +48,22 @@ public final class Constants {
         public static final double BaseLockRampRate = 0;
         public static final NeutralMode BrakeModeDefault = NeutralMode.Brake;
         public static final double DriveRampRate = 2;
-        public static final double WheelDiameterInches = 4;
+        public static final double WheelDiameterInches = 5.5;
         public static final int DriverControllerId = 0;
         public static final double MinAutoTurnRate = 0.2;
         public static final double NormalAutoTurnRate = 1;
         public static final double AutoTurnDeadbandDegrees = 0.5;
         public static final double RotationsToInches = Math.PI * WheelDiameterInches; // 1 wheel rotation = 1 circumference travelled
-        public static final double TicksPerRotation = 4096; // 4096 ticks per rotation
+        public static final double TicksPerRotation = 2048; // 2048 ticks per rotation
         // 4096 ticks per circumference travelled, so 4096/circumference = ticks per unit length
         public static final double EncoderTicksPerInch = TicksPerRotation / RotationsToInches; 
         public static final double TurnAnglekP = 0;
         public static final double TurnAnglekI = 0;
         public static final double TurnAnglekD = 0;
         public static final double TurnInPlaceDeadband = 0.1;
-        public static final double GearRatio = 30;
-        public static final double TrackWidth = 0.5;
+        public static final double GearRatio = 12;
+        public static final double TrackWidth = Units.inchesToMeters(27.25);
+        public static final double kS = 0;
         public static final double kVLinear = 0;
         public static final double kALinear = 0;
         public static final double kVAngular = 0;
@@ -73,6 +75,10 @@ public final class Constants {
                 kVAngular, 
                 kAAngular
             );
+        // units = m/s
+        public static final double maxPathVelocity = 1;
+        // units = m/s^2
+        public static final double maxPathAcceleration = 1;
 
     }
 
