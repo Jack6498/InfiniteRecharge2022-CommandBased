@@ -219,6 +219,12 @@ public class DriveBase extends SubsystemBase implements Loggable{
   public double getRightVelocity() {
     return rightLeader.getSelectedSensorVelocity();
   }
+  
+  @Log
+  public double getSpeedRatio() {
+    // 1.0 => both sides equal, 0.0 => left 0, right 1, 100.0 => right 0, left 1
+    return MathUtil.applyDeadband(leftLeader.getSelectedSensorVelocity(), 0.01) / MathUtil.applyDeadband(rightLeader.getSelectedSensorVelocity(), 0.01);
+  }
 
   public void consumeTrapezoidState(TrapezoidProfile.State leftProfileState, TrapezoidProfile.State rightProfileState) {
     leftLeader.set(
