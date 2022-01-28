@@ -37,7 +37,7 @@ import frc.surpriselib.DriveSignal;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
-public class DriveBase extends SubsystemBase implements Loggable{
+public class DriveBase extends SubsystemBase implements Loggable {
   // motors
   private WPI_TalonFX leftLeader, rightLeader;
   private WPI_TalonFX leftFollower, rightFollower;
@@ -174,7 +174,7 @@ public class DriveBase extends SubsystemBase implements Loggable{
     }
   }
 
-  @Log(name="Gear", tabName="DriveBase")
+  @Log(name="Gear")
   public boolean getGear()
   {
     return isHighGear;

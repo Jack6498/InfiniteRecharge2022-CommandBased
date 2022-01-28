@@ -36,7 +36,6 @@ public class RobotContainer {
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
-  @Log
   private final DriveBase driveBase = new DriveBase();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = 
