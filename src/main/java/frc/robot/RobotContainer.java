@@ -36,6 +36,7 @@ public class RobotContainer {
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
+  @Log
   private final DriveBase driveBase = new DriveBase();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = 
@@ -52,14 +53,11 @@ public class RobotContainer {
   // follow path
   public DriverStation.Alliance startPosition;
 
-  private SequentialCommandGroup simplestAuto = 
-    new SequentialCommandGroup(
+  private SequentialCommandGroup simplestAuto = new SequentialCommandGroup(
       new WaitCommand(1),
       new DriveDistanceProfiled(driveBase, 1),
       new TurnAngle(driveBase, 30),
-      new WaitCommand(1)
-    );
-  
+      new WaitCommand(1));
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.configureLoggingAndConfig(this, false);
