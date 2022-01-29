@@ -89,7 +89,9 @@ public class RobotContainer {
         output -> driveBase.arcadeDrive(driver.getLeftTriggerAxis(), output), 
         driveBase)
       );
+    // start intake
     new JoystickButton(driver, Button.kX.value).whenPressed(new InstantCommand(intake::startIntakeMotor, intake));
+    // stop intake
     new JoystickButton(driver, Button.kY.value).whenPressed(new InstantCommand(intake::stopIntakeMotor, intake));
   }
   

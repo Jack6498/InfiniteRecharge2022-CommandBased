@@ -8,7 +8,6 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
-import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
@@ -31,7 +30,7 @@ public class Intake extends SubsystemBase implements Loggable {
   }
 
   public void startIntakeMotor() {
-    motorSetpoint = 0.5;
+    motorSetpoint = 0.67;
   }
   public void stopIntakeMotor() {
     motorSetpoint = 0;
