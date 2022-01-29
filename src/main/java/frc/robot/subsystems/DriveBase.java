@@ -4,15 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static frc.robot.Constants.Drive.DriveRampRate;
-import static frc.robot.Constants.Drive.LeftFollowerId;
-import static frc.robot.Constants.Drive.LeftLeaderId;
-import static frc.robot.Constants.Drive.RightFollowerId;
-import static frc.robot.Constants.Drive.RightLeaderId;
-import static frc.robot.Constants.Drive.ShifterSolenoidId;
-import static frc.robot.Constants.Drive.kALinear;
-import static frc.robot.Constants.Drive.kS;
-import static frc.robot.Constants.Drive.kVLinear;
+import static frc.robot.Constants.Drive.*;
 
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.DemandType;
@@ -27,9 +19,11 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -46,7 +40,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
   private DifferentialDrive diffDrive;
   // 
   @Log
-  private Solenoid shifter; // gear shifter
+  private DoubleSolenoid  shifter; // gear shifter
   private Compressor compressor;
   // imu
   private AHRS gyro;
@@ -97,7 +91,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
     odometry = new DifferentialDriveOdometry(gyro.getRotation2d());
 
     compressor = new Compressor(PneumaticsModuleType.CTREPCM);
-    shifter = new Solenoid(PneumaticsModuleType.CTREPCM, ShifterSolenoidId);
+    shifter = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, ShifterForwardSolenoidId, ShifterReverseSolenoidId);
 
     // engage brakes when neutral input
     setBrakeMode(NeutralMode.Coast);
@@ -166,10 +160,10 @@ public class DriveBase extends SubsystemBase implements Loggable {
   public void toggleGear()
   {
     if (isHighGear) {
-      shifter.set(false);
+      shifter.set(Value.kReverse);
       isHighGear = false;
     } else {
-      shifter.set(true);
+      shifter.set(Value.kForward);
       isHighGear = true;
     }
   }

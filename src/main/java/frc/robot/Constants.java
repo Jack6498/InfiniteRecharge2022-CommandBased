@@ -29,7 +29,10 @@ public final class Constants {
         public static final int RightFollowerId = 2;
         public static final int LeftPhotoeyePort = 0;
         public static final int RightPhotoeyePort = 0;
-        public static final int ShifterSolenoidId = 0;
+        // low=>high
+        public static final int ShifterForwardSolenoidId = 2;
+        // high=>low
+        public static final int ShifterReverseSolenoidId = 3;
         public static final int VelocityControlSlot = 0;
         public static final double VelocityControlkP = 0;
         public static final double VelocityControlkI = 0;
