@@ -14,6 +14,8 @@ import frc.robot.commands.DriveArcadeOpenLoop;
 import frc.robot.commands.auto.DriveDistanceProfiled;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
+import frc.robot.subsystems.Intake;
+
 import static frc.robot.Constants.Drive.*;
 import io.github.oblarg.oblog.Logger;
 import io.github.oblarg.oblog.annotations.Log;
@@ -37,13 +39,14 @@ public class RobotContainer {
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
   private final DriveBase driveBase = new DriveBase();
+  private final Intake intake = new Intake();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = 
     new DriveArcadeOpenLoop(
       driveBase, 
-      driver::getLeftTriggerAxis, 
-      driver::getRightX, 
-      driver::getRightTriggerAxis
+      driver::getRightTriggerAxis, 
+      driver::getLeftX, 
+      driver::getLeftTriggerAxis
     );
   // auto commands
   // drive x distance
@@ -76,8 +79,8 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // button commands
-    new JoystickButton(driver, Button.kA.value).whenPressed(new InstantCommand(driveBase::toggleGear, driveBase));
-    new JoystickButton(driver, Button.kLeftBumper.value).whenPressed(angle);
+    //new JoystickButton(driver, Button.kA.value).whenPressed(new InstantCommand(driveBase::toggleGear, driveBase));
+    //new JoystickButton(driver, Button.kLeftBumper.value).whenPressed(angle);
     new JoystickButton(driver, Button.kB.value).whenHeld(
       new PIDCommand(
         new PIDController(TurnAnglekP, TurnAnglekI, TurnAnglekD), 
@@ -86,6 +89,8 @@ public class RobotContainer {
         output -> driveBase.arcadeDrive(driver.getLeftTriggerAxis(), output), 
         driveBase)
       );
+    new JoystickButton(driver, Button.kX.value).whenPressed(new InstantCommand(intake::startIntakeMotor, intake));
+    new JoystickButton(driver, Button.kY.value).whenPressed(new InstantCommand(intake::stopIntakeMotor, intake));
   }
   
   /**

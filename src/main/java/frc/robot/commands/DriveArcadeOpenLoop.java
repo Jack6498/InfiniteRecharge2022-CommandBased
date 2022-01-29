@@ -32,7 +32,7 @@ public class DriveArcadeOpenLoop extends CommandBase {
     driveBase.arcadeDrive(
       MathUtil.applyDeadband(forward.getAsDouble(), 0.02) + 
       -MathUtil.applyDeadband(reverse.getAsDouble(), 0.02), 
-      turn.getAsDouble()
+      -turn.getAsDouble()
     );
   }
 

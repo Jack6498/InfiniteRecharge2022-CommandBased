@@ -21,8 +21,6 @@ import edu.wpi.first.math.util.Units;
  */
 public final class Constants {
 
-    
-
     public static final class Drive {
 
         public static final int LeftLeaderId = 3;
@@ -80,6 +78,14 @@ public final class Constants {
         // units = m/s^2
         public static final double maxPathAcceleration = 1;
 
+    }
+
+    public static final class Intake {
+        public static final int intakeVictorCANId = 5;
+        public static final int leftPistonForwardChannel = 0;
+        public static final int leftPistonReverseChannel = 0;
+        public static final int rightPistonForwardChannel = 0;
+        public static final int rightPistonReverseChannel = 0;
     }
 
     public static final class Vision {
