@@ -10,9 +10,12 @@ import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Config;
+
 import static frc.robot.Constants.Intake.*;
 
-public class Intake extends SubsystemBase {
+public class Intake extends SubsystemBase implements Loggable {
   // Hardware
   VictorSPX intakeMotor;
   DoubleSolenoid leftPiston, rightPiston;
@@ -34,8 +37,12 @@ public class Intake extends SubsystemBase {
     motorSetpoint = 0;
   }
 
+  @Config
+  public void setMotorPercent(double percent) {
+    motorSetpoint = percent;
+  }
+
   @Override
-  
   public void periodic() {
     intakeMotor.set(ControlMode.PercentOutput, motorSetpoint);
   }
