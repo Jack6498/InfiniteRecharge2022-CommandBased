@@ -11,18 +11,25 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.ZeroTurret;
 import frc.robot.commands.auto.DriveDistanceProfiled;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Turret;
 
 import static frc.robot.Constants.Drive.*;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import io.github.oblarg.oblog.Logger;
 import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
+import edu.wpi.first.wpilibj2.command.StartEndCommand;
+import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -33,6 +40,7 @@ import edu.wpi.first.wpilibj2.command.button.JoystickButton;
  * subsystems, commands, and button mappings) should be declared here.
  */
 public class RobotContainer {
+  public DriverStation.Alliance startPosition;
   @Log
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   // controllers
@@ -40,6 +48,7 @@ public class RobotContainer {
   // subsystems
   private final DriveBase driveBase = new DriveBase();
   private final Intake intake = new Intake();
+  private final Turret turret = new Turret();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = 
     new DriveArcadeOpenLoop(
@@ -50,16 +59,25 @@ public class RobotContainer {
     );
   // auto commands
   // drive x distance
+  DriveDistanceProfiled driveDist = new DriveDistanceProfiled(driveBase, 2);
   // turn angle
   TurnAngle angle = new TurnAngle(driveBase, 30);
   // follow path
-  public DriverStation.Alliance startPosition;
-
+  // zero turret
+  SequentialCommandGroup zeroTurret = new SequentialCommandGroup(
+    new ZeroTurret(turret),
+    new TrapezoidProfileCommand(
+      turret.getProfile(), 
+      (output) -> turret.consumeTrapezoidState(output),
+      turret
+    )
+  );
   private SequentialCommandGroup simplestAuto = new SequentialCommandGroup(
-      new WaitCommand(1),
-      new DriveDistanceProfiled(driveBase, 1),
-      new TurnAngle(driveBase, 30),
-      new WaitCommand(1));
+    new WaitCommand(1),
+    new DriveDistanceProfiled(driveBase, 1),
+    new TurnAngle(driveBase, 30),
+    new WaitCommand(1)
+  );
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.configureLoggingAndConfig(this, false);
@@ -87,12 +105,23 @@ public class RobotContainer {
         driveBase::getTurnRate, 
         0, 
         output -> driveBase.arcadeDrive(driver.getLeftTriggerAxis(), output), 
-        driveBase)
-      );
-    // start intake
-    new JoystickButton(driver, Button.kX.value).whenPressed(new InstantCommand(intake::startIntakeMotor, intake));
-    // stop intake
-    new JoystickButton(driver, Button.kY.value).whenPressed(new InstantCommand(intake::stopIntakeMotor, intake));
+        driveBase
+      )
+    );
+    // start/stop intake
+    new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startIntakeMotor, intake::stopIntakeMotor, intake));
+    // set brake mode
+    new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
+      new StartEndCommand(
+        () -> {
+          driveBase.setBrakeMode(NeutralMode.Brake);
+        }, 
+        () -> {
+          driveBase.setBrakeMode(NeutralMode.Coast);
+        }, 
+        driveBase
+      )
+    );
   }
   
   /**

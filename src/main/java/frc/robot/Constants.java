@@ -91,6 +91,10 @@ public final class Constants {
         public static final int rightPistonReverseChannel = 0;
     }
 
+    public static final class Shooter {
+        public static final int yawMotorCANId = 1;
+    }
+
     public static final class Vision {
 
         public static final String LimelightCameraName = "limelight";
