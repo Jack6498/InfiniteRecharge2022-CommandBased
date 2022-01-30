@@ -20,31 +20,34 @@ import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI.Port;
-import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.surpriselib.DriveSignal;
+
+import frc.surpriselib.DriveControlMode;
+
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
 public class DriveBase extends SubsystemBase implements Loggable {
   // motors
-  private WPI_TalonFX leftLeader, rightLeader;
-  private WPI_TalonFX leftFollower, rightFollower;
-  private MotorControllerGroup leftMotors, rightMotors;
-  private DifferentialDriveOdometry odometry;
-  private DifferentialDrive diffDrive;
+  private final WPI_TalonFX leftLeader, rightLeader;
+  private final WPI_TalonFX leftFollower, rightFollower;
+  private final MotorControllerGroup leftMotors, rightMotors;
+  private final DifferentialDriveOdometry odometry;
+  private final DifferentialDrive diffDrive;
   // 
   @Log
-  private DoubleSolenoid  shifter; // gear shifter
-  private Compressor compressor;
+  private final DoubleSolenoid  shifter; // gear shifter
+  private final Compressor compressor;
   // imu
-  private AHRS gyro;
+  private final AHRS gyro;
   
   private boolean isHighGear = false;
+  private NeutralMode currentBrakeMode = NeutralMode.Coast;
   private DriveControlMode driveControlMode;
   private final SimpleMotorFeedforward driveFeedforward =
     new SimpleMotorFeedforward(
@@ -52,17 +55,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
       kVLinear,
       kALinear
     );
-  /**
-   * Driving Mode<p>
-   * Available Modes are Open Loop (Manual), Base Locked, and Trajectory Following.<p>
-   * WARNING: ONLY OPEN LOOP IS CURRENTLY IMPLEMENTED
-   */
-  public enum DriveControlMode
-  {
-    OPEN_LOOP, 
-    BASE_LOCKED,
-    TRAJECTORY_FOLLOWING
-  }
 
   public DriveBase()
   {
@@ -98,6 +90,8 @@ public class DriveBase extends SubsystemBase implements Loggable {
     // setup encoders
     leftLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
+
+    driveControlMode = DriveControlMode.OPEN_LOOP;
   }
 
   // hardware methods
@@ -115,7 +109,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
     return Rotation2d.fromDegrees(gyro.getAngle());
   }
 
-
   @Log
   public double getHeading() {
     return getGyroAngle().getDegrees();
@@ -125,34 +118,25 @@ public class DriveBase extends SubsystemBase implements Loggable {
     return gyro.getRate();
   }
 
+  public void toggleBrakeMode() {
+    if (currentBrakeMode == NeutralMode.Brake) {
+      currentBrakeMode = NeutralMode.Coast;
+      setBrakeMode(currentBrakeMode);
+    } else {
+      currentBrakeMode = NeutralMode.Brake;
+      setBrakeMode(currentBrakeMode);
+    }
+  }
+
   public void setBrakeMode(NeutralMode brakeMode)
   {
     leftLeader.setNeutralMode(brakeMode);
     rightLeader.setNeutralMode(brakeMode);
-  }
-  
-  // driving modes
-  public void setTankDrive(final DriveSignal signal)
-  {
-    if(driveControlMode != DriveControlMode.OPEN_LOOP)
-    {
-      driveControlMode = DriveControlMode.OPEN_LOOP;
-    }
-    diffDrive.tankDrive(signal.leftMotor, signal.rightMotor);
-    setBrakeMode(signal.brakeMode);
-  }
-
-  public void arcadeDriveIK(double throttle, double turn)
-  {
-    throttle = MathUtil.applyDeadband(throttle, 0.05);
-    turn = MathUtil.applyDeadband(turn, 0.05);
-
-    DifferentialDrive.WheelSpeeds speeds = DifferentialDrive.arcadeDriveIK(throttle, turn, true);
-    leftLeader.set(ControlMode.PercentOutput, speeds.left);
-    leftLeader.set(ControlMode.PercentOutput, speeds.right);
+    currentBrakeMode = brakeMode;
   }
 
   public void arcadeDrive(double throttle, double turn) {
+    driveControlMode = DriveControlMode.OPEN_LOOP;
     diffDrive.arcadeDrive(throttle, turn, true);
   }
 
@@ -168,14 +152,23 @@ public class DriveBase extends SubsystemBase implements Loggable {
   }
 
   @Log(name="Gear")
-  public boolean getGear()
+  public String getGear()
   {
-    return isHighGear;
+    if (isHighGear) {
+      return "High";
+    } else {
+      return "Low";
+    }
   }
 
   public void stop()
   {
-    setTankDrive(DriveSignal.NEUTRAL);
+    arcadeDrive(0, 0);
+  }
+
+  @Log
+  public String getBrakeMode() {
+    return currentBrakeMode.toString();
   }
 
   public double getEncoderPosition()
@@ -184,7 +177,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
       + ((rightLeader.getSelectedSensorPosition() + rightFollower.getSelectedSensorPosition()) / 2);
   }
 
-  @Log(name = "Compressor Running")
+  @Log.BooleanBox(name = "Compressor Running")
   public boolean getPressure() {
     return compressor.enabled();
   }
@@ -213,7 +206,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
     return rightLeader.getSelectedSensorVelocity();
   }
   
-  @Log
+  @Log.Dial
   public double getSpeedRatio() {
     // 1.0 => both sides equal, 0.0 => left 0, right 1, 100.0 => right 0, left 1
     return MathUtil.applyDeadband(leftLeader.getSelectedSensorVelocity(), 0.01) / MathUtil.applyDeadband(rightLeader.getSelectedSensorVelocity(), 0.01);
