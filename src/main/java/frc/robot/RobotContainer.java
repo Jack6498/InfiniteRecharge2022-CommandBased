@@ -65,12 +65,7 @@ public class RobotContainer {
   // follow path
   // zero turret
   SequentialCommandGroup zeroTurret = new SequentialCommandGroup(
-    new ZeroTurret(turret),
-    new TrapezoidProfileCommand(
-      turret.getProfile(), 
-      (output) -> turret.consumeTrapezoidState(output),
-      turret
-    )
+    new ZeroTurret(turret)
   );
   private SequentialCommandGroup simplestAuto = new SequentialCommandGroup(
     new WaitCommand(1),
@@ -84,6 +79,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
+    turret.setDefaultCommand(zeroTurret);
 
     // configure autos
     autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);

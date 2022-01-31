@@ -16,6 +16,9 @@ public class Turret extends SubsystemBase {
   
   TalonFX yawMotor = new TalonFX(yawMotorCANId);
   TrapezoidProfile nextProfile;
+  double nextProfileLength;
+  TrapezoidProfile.State finalState;
+
   public Turret() {
     yawMotor.configPeakOutputForward(0.2);
     yawMotor.configPeakOutputReverse(0.2);
@@ -45,8 +48,10 @@ public class Turret extends SubsystemBase {
     return yawMotor.getSelectedSensorPosition();
   }
 
-  public void addProfile(TrapezoidProfile profile) {
+  public void setProfile(TrapezoidProfile profile) {
     nextProfile = profile;
+    nextProfileLength = profile.totalTime();
+    finalState = profile.calculate(nextProfileLength);
   }
 
   public TrapezoidProfile getProfile() {
@@ -55,5 +60,11 @@ public class Turret extends SubsystemBase {
 
   public void consumeTrapezoidState(TrapezoidProfile.State state) {
     yawMotor.set(ControlMode.Position, state.position);
+    if (finalState.position == state.position) {
+      // we're at the end
+      finalState = null;
+      nextProfileLength = 0;
+      nextProfile = null;
+    }
   }
 }

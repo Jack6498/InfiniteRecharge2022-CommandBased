@@ -49,7 +49,7 @@ public class ZeroTurret extends CommandBase {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    turret.addProfile(center);
+    turret.setProfile(center);
   }
 
   // Returns true when the command should end.
