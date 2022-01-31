@@ -47,6 +47,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
   private final AHRS gyro;
   
   private boolean isHighGear = false;
+  private boolean driveInverted;
   private NeutralMode currentBrakeMode = NeutralMode.Coast;
   private DriveControlMode driveControlMode;
   private final SimpleMotorFeedforward driveFeedforward =
@@ -135,7 +136,22 @@ public class DriveBase extends SubsystemBase implements Loggable {
     currentBrakeMode = brakeMode;
   }
 
+  public void setInverted(boolean inverted) {
+    driveInverted = inverted;
+  }
+
+  public boolean getInverted() {
+    return driveInverted;
+  }
+
+  public void toggleInverted() {
+    driveInverted = !driveInverted;
+  }
+
   public void arcadeDrive(double throttle, double turn) {
+    if (driveInverted) {
+      throttle *= -1;
+    }
     driveControlMode = DriveControlMode.OPEN_LOOP;
     diffDrive.arcadeDrive(throttle, turn, true);
   }

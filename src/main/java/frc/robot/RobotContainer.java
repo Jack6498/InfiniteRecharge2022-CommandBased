@@ -5,6 +5,7 @@
 package frc.robot;
 
 import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -65,7 +66,7 @@ public class RobotContainer {
   // follow path
   // zero turret
   SequentialCommandGroup zeroTurret = new SequentialCommandGroup(
-    new ZeroTurret(turret)
+    //new ZeroTurret(turret)
   );
   private SequentialCommandGroup simplestAuto = new SequentialCommandGroup(
     new WaitCommand(1),
@@ -79,7 +80,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
-    turret.setDefaultCommand(zeroTurret);
+    //turret.setDefaultCommand(zeroTurret);
 
     // configure autos
     autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);
@@ -117,7 +118,9 @@ public class RobotContainer {
         }, 
         driveBase
       )
-    );
+    ).debounce(0.5, DebounceType.kBoth);
+
+    new JoystickButton(driver, Button.kB.value).whenPressed(new InstantCommand(driveBase::toggleInverted, driveBase));
   }
   
   /**
