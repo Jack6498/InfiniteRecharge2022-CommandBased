@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Drive.TurnAnglekD;
+import static frc.robot.Constants.Drive.TurnAnglekI;
+import static frc.robot.Constants.Drive.TurnAnglekP;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,28 +17,22 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.commands.DriveArcadeOpenLoop;
-import frc.robot.commands.ZeroTurret;
-import frc.robot.commands.auto.DriveDistanceProfiled;
-import frc.robot.commands.auto.TurnAngle;
-import frc.robot.subsystems.DriveBase;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Turret;
-
-import static frc.robot.Constants.Drive.*;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-
-import io.github.oblarg.oblog.Logger;
-import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.auto.DriveDistanceProfiled;
+import frc.robot.commands.auto.TurnAngle;
+import frc.robot.subsystems.DriveBase;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.LEDController;
+import frc.robot.subsystems.Turret;
+import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -47,7 +47,8 @@ public class RobotContainer {
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
-  private final DriveBase driveBase = new DriveBase();
+  private final LEDController ledController = new LEDController();
+  private final DriveBase driveBase = new DriveBase(ledController);
   private final Intake intake = new Intake();
   private final Turret turret = new Turret();
   // commands
@@ -108,7 +109,7 @@ public class RobotContainer {
     // start/stop intake
     new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startIntakeMotor, intake::stopIntakeMotor, intake));
     // set brake mode
-    new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
+    new JoystickButton(driver, Button.kA.value).whenHeld(
       new StartEndCommand(
         () -> {
           driveBase.setBrakeMode(NeutralMode.Brake);

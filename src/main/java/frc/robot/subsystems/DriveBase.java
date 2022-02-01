@@ -18,6 +18,7 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -50,6 +51,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
   private boolean driveInverted;
   private NeutralMode currentBrakeMode = NeutralMode.Coast;
   private DriveControlMode driveControlMode;
+  private LEDController ledController;
   private final SimpleMotorFeedforward driveFeedforward =
     new SimpleMotorFeedforward(
       kS,
@@ -57,8 +59,9 @@ public class DriveBase extends SubsystemBase implements Loggable {
       kALinear
     );
 
-  public DriveBase()
+  public DriveBase(LEDController ledController)
   {
+    this.ledController = ledController;
     leftLeader = new WPI_TalonFX(LeftLeaderId);
     leftFollower = new WPI_TalonFX(LeftFollowerId);
     rightLeader = new WPI_TalonFX(RightLeaderId);
@@ -132,8 +135,19 @@ public class DriveBase extends SubsystemBase implements Loggable {
   public void setBrakeMode(NeutralMode brakeMode)
   {
     leftLeader.setNeutralMode(brakeMode);
+    leftFollower.setNeutralMode(brakeMode);
     rightLeader.setNeutralMode(brakeMode);
+    rightFollower.setNeutralMode(brakeMode);
     currentBrakeMode = brakeMode;
+    switch (currentBrakeMode) {
+      case Coast:
+        ledController.setStripSolid(ledController.colors.get("orange"));
+        break;
+      case Brake:
+        ledController.setStripSolid(ledController.colors.get("red"));
+      default:
+        break;
+    }
   }
 
   public void setInverted(boolean inverted) {
