@@ -45,7 +45,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
   private final Compressor compressor;
   // imu
   private final AHRS gyro;
-  
+
   private boolean isHighGear = false;
   private boolean driveInverted;
   private NeutralMode currentBrakeMode = NeutralMode.Coast;
@@ -184,7 +184,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
 
   @Log
   public String getBrakeMode() {
-    return currentBrakeMode.toString();
+    return String.format("L1: {0}\nL2: {1}\nR1: {2}\nR2: {3}", 0,0,0,0);
   }
 
   public double getEncoderPosition()
