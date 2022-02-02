@@ -212,20 +212,25 @@ public class DriveBase extends SubsystemBase implements Loggable {
     );
   }
 
-  @Log.Graph
+  //@Log.Graph
   public double getLeftVelocity() {
     return leftLeader.getSelectedSensorVelocity();
   }
 
-  @Log.Graph
+  //@Log.Graph
   public double getRightVelocity() {
     return rightLeader.getSelectedSensorVelocity();
   }
   
-  @Log.Dial
+  //@Log.Dial
   public double getSpeedRatio() {
     // 1.0 => both sides equal, 0.0 => left 0, right 1, 100.0 => right 0, left 1
     return MathUtil.applyDeadband(leftLeader.getSelectedSensorVelocity(), 0.01) / MathUtil.applyDeadband(rightLeader.getSelectedSensorVelocity(), 0.01);
+  }
+
+  @Log.Dial
+  public double getMotorVoltageDifference() {
+    return leftLeader.getSupplyCurrent() - rightLeader.getSupplyCurrent();
   }
 
   public void consumeTrapezoidState(TrapezoidProfile.State leftProfileState, TrapezoidProfile.State rightProfileState) {
