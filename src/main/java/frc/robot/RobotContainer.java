@@ -45,7 +45,7 @@ public class RobotContainer {
   @Log
   SendableChooser<Command> autoChooser = new SendableChooser<>();
   // controllers
-  XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
+  XboxController driver = new XboxController(DriverControllerId);
   // subsystems
   private final DriveBase driveBase = new DriveBase();
   private final Intake intake = new Intake();
