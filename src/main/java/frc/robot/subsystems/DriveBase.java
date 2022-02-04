@@ -18,7 +18,6 @@ import edu.wpi.first.math.controller.SimpleMotorFeedforward;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.DoubleSolenoid;
 import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
@@ -26,10 +25,12 @@ import edu.wpi.first.wpilibj.PneumaticsModuleType;
 import edu.wpi.first.wpilibj.SPI.Port;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
 import frc.surpriselib.DriveControlMode;
-
+import frc.surpriselib.LEDStrips;
+import frc.surpriselib.Utils;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -141,10 +142,10 @@ public class DriveBase extends SubsystemBase implements Loggable {
     currentBrakeMode = brakeMode;
     switch (currentBrakeMode) {
       case Coast:
-        ledController.setStripSolid(ledController.colors.get("orange"));
+        ledController.setStripSolid(LEDStrips.BRAKE, ledController.colors.get("orange"));
         break;
       case Brake:
-        ledController.setStripSolid(ledController.colors.get("red"));
+        ledController.setStripSolid(LEDStrips.BRAKE, ledController.colors.get("red"));
       default:
         break;
     }
@@ -179,6 +180,17 @@ public class DriveBase extends SubsystemBase implements Loggable {
       shifter.set(Value.kForward);
       isHighGear = true;
     }
+  }
+
+  public void setLightStrips() {
+    Color color;
+    // gear
+    color = isHighGear ? Color.kRed : Color.kRosyBrown;
+    ledController.setStripSolid(LEDStrips.GEAR, color);
+    // brake
+    color = Utils.neutralModeIsBrake(currentBrakeMode) ? Color.kRed : Color.kSalmon;
+    ledController.setStripSolid(LEDStrips.BRAKE, color);
+    
   }
 
   @Log(name="Gear")

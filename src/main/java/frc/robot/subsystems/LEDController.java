@@ -11,7 +11,8 @@ import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import frc.surpriselib.MathUtils;
+import frc.surpriselib.LEDStrips;
+import frc.surpriselib.Utils;
 
 public class LEDController extends SubsystemBase {
   AddressableLED driveStatusLED;
@@ -31,16 +32,15 @@ public class LEDController extends SubsystemBase {
     driveStatusBuffer  = new AddressableLEDBuffer(5);
     driveStatusLED.setLength(driveStatusBuffer.getLength());
 
-    setStripSolid(new Color(1, 0, 0));
     driveStatusLED.setData(driveStatusBuffer);
   }
 
-  public void setStripSolid(Color ledColor) {
-    setStripSolid(ledColor, 1);
+  public void setStripSolid(LEDStrips strip, Color ledColor) {
+    setStripSolid(LEDStrips.GEAR, ledColor, 1);
   }
 
-  public void setStripSolid(Color ledColor, double reduction) {
-    reduction = MathUtils.clamp(reduction, 1, 0);
+  public void setStripSolid(LEDStrips strip, Color ledColor, double reduction) {
+    reduction = Utils.clamp(reduction, 1, 0);
     Color adjustedColor = new Color(
       ledColor.red * reduction, 
       ledColor.green * reduction, 

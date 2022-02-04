@@ -95,7 +95,12 @@ public class RobotContainer {
    */
   private void configureButtonBindings() {
     // button commands
-    new JoystickButton(driver, Button.kRightBumper.value).whenPressed(new InstantCommand(driveBase::toggleGear, driveBase));
+    new JoystickButton(driver, Button.kRightBumper.value).whenPressed(
+      new SequentialCommandGroup(
+        new InstantCommand(driveBase::toggleGear, driveBase),
+        new InstantCommand(driveBase::setLightStrips, driveBase)
+      )
+    );
     //new JoystickButton(driver, Button.kLeftBumper.value).whenPressed(angle);
     new JoystickButton(driver, Button.kB.value).whenHeld(
       new PIDCommand(
