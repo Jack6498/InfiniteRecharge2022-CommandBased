@@ -140,15 +140,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
     rightLeader.setNeutralMode(brakeMode);
     rightFollower.setNeutralMode(brakeMode);
     currentBrakeMode = brakeMode;
-    switch (currentBrakeMode) {
-      case Coast:
-        ledController.setStripSolid(LEDStrips.BRAKE, ledController.colors.get("orange"));
-        break;
-      case Brake:
-        ledController.setStripSolid(LEDStrips.BRAKE, ledController.colors.get("red"));
-      default:
-        break;
-    }
   }
 
   public void setInverted(boolean inverted) {

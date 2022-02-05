@@ -6,6 +6,7 @@ package frc.robot.subsystems;
 
 import java.util.HashMap;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.AddressableLED;
 import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.util.Color;
@@ -15,24 +16,23 @@ import frc.surpriselib.LEDStrips;
 import frc.surpriselib.Utils;
 
 public class LEDController extends SubsystemBase {
-  AddressableLED driveStatusLED;
-  AddressableLEDBuffer driveStatusBuffer;
-  HashMap<String,Color> colors = new HashMap<>();
+  AddressableLED[] ledStrips = new AddressableLED[LEDStrips.values().length];
+  AddressableLEDBuffer[] ledBuffers = new AddressableLEDBuffer[2];
   
   /** Creates a new LEDController. */
   public LEDController(Subsystem...subsystems) {
-    // colors
-    colors.put("red", Color.kRed);
-    colors.put("green", Color.kGreen);
-    colors.put("blue", Color.kBlue);
-    colors.put("orange", Color.kOrange);
-    colors.put("off", Color.kBlack);
+    Pair<AddressableLED, AddressableLEDBuffer> pair = setupStrip(1, 5);
+    ledStrips[0] = pair.getFirst();
+    ledBuffers[0] = pair.getSecond();
 
-    driveStatusLED = new AddressableLED(1);
-    driveStatusBuffer  = new AddressableLEDBuffer(5);
-    driveStatusLED.setLength(driveStatusBuffer.getLength());
+  }
 
-    driveStatusLED.setData(driveStatusBuffer);
+  private Pair<AddressableLED, AddressableLEDBuffer> setupStrip(int port, int length) {
+    AddressableLED strip = new AddressableLED(port);
+    AddressableLEDBuffer buffer = new AddressableLEDBuffer(length);
+    strip.setLength(buffer.getLength());
+    strip.setData(buffer);
+    return new Pair<AddressableLED,AddressableLEDBuffer>(strip, buffer);
   }
 
   public void setStripSolid(LEDStrips strip, Color ledColor) {
@@ -50,5 +50,7 @@ public class LEDController extends SubsystemBase {
     for (int i = 0; i < driveStatusBuffer.getLength(); i++) {
       driveStatusBuffer.setLED(i, adjustedColor);
     }
+
+    
   }
 }

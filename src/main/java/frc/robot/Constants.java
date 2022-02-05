@@ -4,8 +4,11 @@
 
 package frc.robot;
 
+import java.util.HashMap;
+
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 
+import edu.wpi.first.math.Pair;
 import edu.wpi.first.math.numbers.N2;
 import edu.wpi.first.math.system.LinearSystem;
 import edu.wpi.first.math.system.plant.LinearSystemId;
@@ -109,5 +112,11 @@ public final class Constants {
         public static final double LimelightPitch = 0;
         public static final double UpperHubTargetPitch = 0;
 
+    }
+
+    public static final class LEDConstants {
+        public static final Pair<Integer, Pair<Integer, Integer>> driveLEDData = ImmutableMap.of
+        //TODO: double array?
+        // collection with enum value key
     }
 }
