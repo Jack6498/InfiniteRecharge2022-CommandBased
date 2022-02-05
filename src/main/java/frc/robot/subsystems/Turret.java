@@ -9,25 +9,30 @@ import static frc.robot.Constants.Shooter.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import edu.wpi.first.math.trajectory.TrapezoidProfile;
+import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class Turret extends SubsystemBase {
+public class Turret extends SubsystemBase implements Loggable {
   
   TalonFX yawMotor = new TalonFX(yawMotorCANId);
-  TrapezoidProfile nextProfile;
-  double nextProfileLength;
-  TrapezoidProfile.State finalState;
+  PIDController pid = new PIDController(turretYaw_kP, 0, turretYaw_kD);
 
   public Turret() {
     yawMotor.configPeakOutputForward(0.2);
     yawMotor.configPeakOutputReverse(0.2);
+
   }
 
   public boolean getForwardLimitSwitch() {
     if (yawMotor.isFwdLimitSwitchClosed() == 1) {
       return true;
     } else return false;
+  }
+
+  public PIDController getController() {
+    return pid;
   }
 
   public boolean getReverseLimitSwitch() {
@@ -44,27 +49,12 @@ public class Turret extends SubsystemBase {
     yawMotor.set(ControlMode.PercentOutput, demand);
   }
 
+  public void setPositionGoal(int position) {
+
+  }
+
+  @Log
   public double getCurrentPosition() {
     return yawMotor.getSelectedSensorPosition();
-  }
-
-  public void setProfile(TrapezoidProfile profile) {
-    nextProfile = profile;
-    nextProfileLength = profile.totalTime();
-    finalState = profile.calculate(nextProfileLength);
-  }
-
-  public TrapezoidProfile getProfile() {
-    return nextProfile;
-  }
-
-  public void consumeTrapezoidState(TrapezoidProfile.State state) {
-    yawMotor.set(ControlMode.Position, state.position);
-    if (finalState.position == state.position) {
-      // we're at the end
-      finalState = null;
-      nextProfileLength = 0;
-      nextProfile = null;
-    }
   }
 }

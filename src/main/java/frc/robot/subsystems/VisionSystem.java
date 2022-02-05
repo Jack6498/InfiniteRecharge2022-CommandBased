@@ -17,12 +17,12 @@ import frc.robot.Constants;
 public class VisionSystem extends SubsystemBase {
   PhotonCamera limelight = new PhotonCamera(Constants.Vision.LimelightCameraName);
   PhotonPipelineResult currentResult;
-  boolean active = false;
+  boolean active = true;
   /** Creates a new VisionSystem. */
   public VisionSystem() {
     limelight.setDriverMode(false);
     limelight.setPipelineIndex(Constants.Vision.AutoPipelineID);
-    limelight.setLED(VisionLEDMode.kDefault);
+    limelight.setLED(VisionLEDMode.kOn);
   }
 
   /**
@@ -30,10 +30,10 @@ public class VisionSystem extends SubsystemBase {
    * @param target The target you want data for. Pass in directly from getTarget().
    * @return A double[] with the yaw, pitch, and area values of the target in that order
    */
-  public double[] getTargetData()
+  public Double[] getTargetData()
   {
     PhotonTrackedTarget target = currentResult.getBestTarget();
-    double[] data = new double[]
+    Double[] data = new Double[]
     {
       target.getYaw(),
       target.getPitch(),
@@ -48,6 +48,9 @@ public class VisionSystem extends SubsystemBase {
     limelight.setLED(ledMode);
   }
 
+  public boolean hasTargets() {
+    return currentResult.hasTargets();
+  }
   /**
    * 
    * @return Distance to the current pipeline's best target, for input to a PID controller (for shooting)

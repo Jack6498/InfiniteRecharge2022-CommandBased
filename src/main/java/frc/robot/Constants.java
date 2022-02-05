@@ -92,10 +92,10 @@ public final class Constants {
     }
 
     public static final class Shooter {
-        public static final int yawMotorCANId = 1;
+        public static final int yawMotorCANId = 10;
         public static final double turretPositionOffsetThreshold = 30;
-        public static final double turretProfileMaxVelocity = 1;
-        public static final double turretProfileMaxAcceleration = 1;
+        public static final double turretYaw_kP = 0.1;
+        public static final double turretYaw_kD = 0;
     }
 
     public static final class Vision {
@@ -103,11 +103,11 @@ public final class Constants {
         public static final String LimelightCameraName = "limelight";
         public static final int AutoPipelineID = 0;
         // Heights are in METERS
-        public static final double LimelightHeightFromField = 0;
-        public static final double UpperHubTargetHeight = 0;
+        public static final double LimelightHeightFromField = Units.inchesToMeters(27);
+        public static final double UpperHubTargetHeight = Units.inchesToMeters(65);
         // Pitches are in DEGREES
-        public static final double LimelightPitch = 0;
-        public static final double UpperHubTargetPitch = 0;
+        public static final double LimelightPitch = 33;
+        public static final double UpperHubTargetPitch = 90;
 
     }
 }

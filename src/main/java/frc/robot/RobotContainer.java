@@ -12,12 +12,13 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.DriveArcadeOpenLoop;
-import frc.robot.commands.ZeroTurret;
+import frc.robot.commands.TurretYaw;
 import frc.robot.commands.auto.DriveDistanceProfiled;
 import frc.robot.commands.auto.TurnAngle;
 import frc.robot.subsystems.DriveBase;
 import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.VisionSystem;
 
 import static frc.robot.Constants.Drive.*;
 
@@ -30,7 +31,6 @@ import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 
@@ -49,6 +49,7 @@ public class RobotContainer {
   // subsystems
   private final DriveBase driveBase = new DriveBase();
   private final Intake intake = new Intake();
+  private final VisionSystem visionSystem = new VisionSystem();
   private final Turret turret = new Turret();
   // commands
   private final DriveArcadeOpenLoop arcadeCommand = 
@@ -80,6 +81,7 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
+    turret.setDefaultCommand(new TurretYaw(turret, visionSystem));
     //turret.setDefaultCommand(zeroTurret);
 
     // configure autos
