@@ -10,8 +10,8 @@ import frc.robot.subsystems.Turret;
 
 public class HomeTurret extends CommandBase {
   Turret turret;
-  boolean homed = false;
-  boolean center = false;
+  boolean homed;
+  boolean center;
   /** Creates a new HomeTurret. */
   public HomeTurret(Turret turret) {
     this.turret = turret;
@@ -21,7 +21,10 @@ public class HomeTurret extends CommandBase {
 
   // Called when the command is initially scheduled.
   @Override
-  public void initialize() {}
+  public void initialize() {
+    homed = false;
+    center = false;
+  }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override

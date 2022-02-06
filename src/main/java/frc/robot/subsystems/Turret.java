@@ -27,7 +27,8 @@ public class Turret extends SubsystemBase implements Loggable {
     yawMotor.config_kP(0, turretYaw_kP);
     yawMotor.config_kI(0, 0);
     yawMotor.config_kD(0, turretYaw_kD);
-
+    yawMotor.configForwardSoftLimitThreshold(turretMaxPosition - turretSoftLimitOffset);
+    yawMotor.configReverseSoftLimitThreshold(turretMinPosition + turretSoftLimitOffset);
   }
 
   public boolean getForwardLimitSwitch() {
@@ -51,24 +52,10 @@ public class Turret extends SubsystemBase implements Loggable {
   }
 
   public void setAngleGoal(Rotation2d angle) {
-    yawMotor.set(ControlMode.Position, angle.getRadians() / (2 * Math.PI / turretTicksPerRotation));
-  }
+    // we need to convert the relative angle from PV into an absolute angle
 
-  @Log(name = "Current Turret Yaw")
-  public double getCurrentPosition() {
-    return yawMotor.getSelectedSensorPosition();
+    yawMotor.set(ControlMode.Position, yawMotor.getSelectedSensorPosition() - (angle.getRadians() / (2 * Math.PI / turretTicksPerRotation)));
   }
-
-  @Log(name = "Position Setpoint")
-  public double getPositionSetpoint() {
-    return yawMotor.getClosedLoopTarget();
-  }
-
-  @Log(name = "Position Error")
-  public double getPositionError() {
-    return yawMotor.getClosedLoopError();
-  }
-
   public void reset(Rotation2d angle) {
     yawMotor.setSelectedSensorPosition((int)(angle.getRadians() / (2 * Math.PI / turretTicksPerRotation)));
   }
