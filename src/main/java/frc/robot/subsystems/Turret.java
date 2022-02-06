@@ -9,7 +9,8 @@ import static frc.robot.Constants.Shooter.*;
 import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.TalonFX;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
@@ -17,11 +18,15 @@ import io.github.oblarg.oblog.annotations.Log;
 public class Turret extends SubsystemBase implements Loggable {
   
   TalonFX yawMotor = new TalonFX(yawMotorCANId);
-  PIDController pid = new PIDController(turretYaw_kP, 0, turretYaw_kD);
+  Rotation2d angleGoal = Rotation2d.fromDegrees(0);
+  double rotationError = 0.0;
 
   public Turret() {
     yawMotor.configPeakOutputForward(0.2);
     yawMotor.configPeakOutputReverse(0.2);
+    yawMotor.config_kP(0, turretYaw_kP);
+    yawMotor.config_kI(0, 0);
+    yawMotor.config_kD(0, turretYaw_kD);
 
   }
 
@@ -29,10 +34,6 @@ public class Turret extends SubsystemBase implements Loggable {
     if (yawMotor.isFwdLimitSwitchClosed() == 1) {
       return true;
     } else return false;
-  }
-
-  public PIDController getController() {
-    return pid;
   }
 
   public boolean getReverseLimitSwitch() {
@@ -49,12 +50,30 @@ public class Turret extends SubsystemBase implements Loggable {
     yawMotor.set(ControlMode.PercentOutput, demand);
   }
 
-  public void setPositionGoal(int position) {
-
+  public void setAngleGoal(Rotation2d angle) {
+    yawMotor.set(ControlMode.Position, angle.getRadians() / (2 * Math.PI / turretTicksPerRotation));
   }
 
-  @Log
+  @Log(name = "Current Turret Yaw")
   public double getCurrentPosition() {
     return yawMotor.getSelectedSensorPosition();
+  }
+
+  @Log(name = "Position Setpoint")
+  public double getPositionSetpoint() {
+    return yawMotor.getClosedLoopTarget();
+  }
+
+  @Log(name = "Position Error")
+  public double getPositionError() {
+    return yawMotor.getClosedLoopError();
+  }
+
+  public void reset(Rotation2d angle) {
+    yawMotor.setSelectedSensorPosition((int)(angle.getRadians() / (2 * Math.PI / turretTicksPerRotation)));
+  }
+
+  public Rotation2d getAngle() {
+    return Rotation2d.fromDegrees(Units.radiansToDegrees(yawMotor.getSelectedSensorPosition() / turretTicksPerRotation * 2 * Math.PI));
   }
 }

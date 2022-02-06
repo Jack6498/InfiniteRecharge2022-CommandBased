@@ -4,15 +4,11 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.math.controller.PIDController;
+import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.CommandBase;
-import edu.wpi.first.wpilibj2.command.PIDCommand;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.VisionSystem;
 import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
-
-import static frc.robot.Constants.Shooter.*;
 
 // NOTE:  Consider using this command inline, rather than writing a subclass.  For more
 // information, see:
@@ -35,7 +31,7 @@ public class TurretYaw extends CommandBase implements Loggable {
     if (vision.hasTargets()) {
       yaw = vision.getTargetData()[0];
     }
-    turret.openLoop(-turret.getController().calculate(yaw, 0));
+    turret.setAngleGoal(Rotation2d.fromDegrees(yaw));
   }
 
   // Returns true when the command should end.

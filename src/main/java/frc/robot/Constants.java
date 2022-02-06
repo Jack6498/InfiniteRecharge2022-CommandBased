@@ -94,8 +94,9 @@ public final class Constants {
     public static final class Shooter {
         public static final int yawMotorCANId = 10;
         public static final double turretPositionOffsetThreshold = 30;
-        public static final double turretYaw_kP = 0.1;
+        public static final double turretYaw_kP = 1;
         public static final double turretYaw_kD = 0;
+        public static final double turretTicksPerRotation = (2048*(40/10)*(40/20)*(314/40));
     }
 
     public static final class Vision {

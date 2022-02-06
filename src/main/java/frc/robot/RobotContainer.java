@@ -12,6 +12,7 @@ import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.HomeTurret;
 import frc.robot.commands.TurretYaw;
 import frc.robot.commands.auto.DriveDistanceProfiled;
 import frc.robot.commands.auto.TurnAngle;
@@ -81,7 +82,12 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
-    turret.setDefaultCommand(new TurretYaw(turret, visionSystem));
+    turret.setDefaultCommand(
+      new SequentialCommandGroup(
+        new HomeTurret(turret),
+        new TurretYaw(turret, visionSystem)
+      )
+    );
     //turret.setDefaultCommand(zeroTurret);
 
     // configure autos
