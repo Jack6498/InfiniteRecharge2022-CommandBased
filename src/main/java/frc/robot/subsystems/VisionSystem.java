@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.photonvision.PhotonCamera;
+import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
@@ -86,6 +87,15 @@ public class VisionSystem extends SubsystemBase {
     ArrayList<PhotonTrackedTarget> targets = new ArrayList<>(currentResult.getTargets());
     Collections.sort(targets, new SortByDistance(comparisonConstants));
     return targets.get(0);
+  }
+
+  public void setActive(boolean active) {
+    this.active = active;
+    if (!active) {
+      CAM_limelight.setLED(VisionLEDMode.kOff);
+    } else {
+      CAM_limelight.setLED(VisionLEDMode.kOn);
+    }
   }
 
   @Override
