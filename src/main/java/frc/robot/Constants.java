@@ -104,14 +104,27 @@ public final class Constants {
 
     public static final class Vision {
 
-        public static final String LimelightCameraName = "limelight";
-        public static final int AutoPipelineID = 0;
         // Heights are in METERS
-        public static final double LimelightHeightFromField = Units.inchesToMeters(27);
-        public static final double UpperHubTargetHeight = Units.inchesToMeters(65);
-        // Pitches are in DEGREES
-        public static final double LimelightPitch = 33;
-        public static final double UpperHubTargetPitch = 90;
+        // Pitches are in DEGREES (convert to radians)
+        public static final double upperHubTargetHeight = Units.inchesToMeters(65);
+        public static final double upperHubTargetPitch = Units.degreesToRadians(90);
 
+        // limelight  
+        public static final String limelightCameraName = "limelight";
+        public static final double limelightHeightFromField = Units.inchesToMeters(27);
+        public static final int upperHubPipelineID = 0;
+        public static final double limelightPitch = Units.degreesToRadians(33);
+        public static final double[] comparisonConstants = new double[] {
+            limelightHeightFromField,
+            upperHubTargetHeight,
+            limelightPitch
+        };
+
+        // lifecam
+        public static final String lifecamCameraName = "lifecam";
+        public static final double lifecamHeightFromField = Units.inchesToMeters(26);
+        public static final int redBallPipelineID = 1;
+        public static final int blueBallPipelineID = 2;
+        public static final double lifecamPitch = Units.degreesToRadians(limelightPitch+180);
     }
 }
