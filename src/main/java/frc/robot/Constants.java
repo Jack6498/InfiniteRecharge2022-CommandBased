@@ -33,20 +33,6 @@ public final class Constants {
         public static final int ShifterForwardSolenoidId = 2;
         // high=>low
         public static final int ShifterReverseSolenoidId = 3;
-        public static final int VelocityControlSlot = 0;
-        public static final double VelocityControlkP = 0;
-        public static final double VelocityControlkI = 0;
-        public static final double VelocityControlkD = 0;
-        public static final double VelocityControlkF = 0;
-        public static final int VelocityControlIZone = 0;
-        public static final double VelocityControlRampRate = 0;
-        public static final int BaseLockSlot = 0;
-        public static final double BaseLock_kP = 0;
-        public static final double BaseLock_kI = 0;
-        public static final double BaseLock_kD = 0;
-        public static final double BaseLock_kF = 0;
-        public static final double BaseLockIZone = 0;
-        public static final double BaseLockRampRate = 0;
         public static final NeutralMode BrakeModeDefault = NeutralMode.Brake;
         public static final double DriveRampRate = 2;
         public static final double WheelDiameterInches = 5.5;
@@ -58,7 +44,7 @@ public final class Constants {
         public static final double TicksPerRotation = 2048; // 2048 ticks per rotation
         // 4096 ticks per circumference travelled, so 4096/circumference = ticks per unit length
         public static final double EncoderTicksPerInch = TicksPerRotation / RotationsToInches; 
-        public static final double TurnAnglekP = 0;
+        public static final double TurnAnglekP = 1;
         public static final double TurnAnglekI = 0;
         public static final double TurnAnglekD = 0;
         public static final double TurnInPlaceDeadband = 0.1;
@@ -92,6 +78,7 @@ public final class Constants {
     }
 
     public static final class Shooter {
+        // Turret
         public static final int yawMotorCANId = 10;
         public static final double turretPositionOffsetThreshold = 30;
         public static final double turretYaw_kP = 1;
@@ -100,6 +87,7 @@ public final class Constants {
         public static final double turretMaxPosition = 135+13.25;
         public static final double turretMinPosition = -135-13.25;
         public static final double turretSoftLimitOffset = 20;
+
     }
 
     public static final class Vision {

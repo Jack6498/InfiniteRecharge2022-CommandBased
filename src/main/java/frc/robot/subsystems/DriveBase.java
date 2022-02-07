@@ -27,8 +27,6 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.motorcontrol.MotorControllerGroup;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
-import frc.surpriselib.DriveControlMode;
-
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Log;
 
@@ -49,7 +47,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
   private boolean isHighGear = false;
   private boolean driveInverted;
   private NeutralMode currentBrakeMode = NeutralMode.Coast;
-  private DriveControlMode driveControlMode;
   private final SimpleMotorFeedforward driveFeedforward =
     new SimpleMotorFeedforward(
       kS,
@@ -91,8 +88,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
     // setup encoders
     leftLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
     rightLeader.configSelectedFeedbackSensor(FeedbackDevice.IntegratedSensor);
-
-    driveControlMode = DriveControlMode.OPEN_LOOP;
   }
 
   // hardware methods
@@ -152,7 +147,6 @@ public class DriveBase extends SubsystemBase implements Loggable {
     if (driveInverted) {
       throttle *= -1;
     }
-    driveControlMode = DriveControlMode.OPEN_LOOP;
     diffDrive.arcadeDrive(throttle, turn, true);
   }
 

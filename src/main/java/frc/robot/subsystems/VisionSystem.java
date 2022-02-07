@@ -10,7 +10,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 import org.photonvision.PhotonCamera;
-import org.photonvision.PhotonTargetSortMode;
 import org.photonvision.PhotonUtils;
 import org.photonvision.common.hardware.VisionLEDMode;
 import org.photonvision.targeting.PhotonPipelineResult;
