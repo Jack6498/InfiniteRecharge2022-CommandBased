@@ -146,6 +146,7 @@ public class DriveBase extends SubsystemBase implements Loggable {
   public void arcadeDrive(double throttle, double turn) {
     if (driveInverted) {
       throttle *= -1;
+      turn *= -1;
     }
     diffDrive.arcadeDrive(throttle, turn, true);
   }
