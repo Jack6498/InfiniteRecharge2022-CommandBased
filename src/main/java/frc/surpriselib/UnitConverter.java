@@ -29,11 +29,21 @@ public class UnitConverter {
     }
 
     public double encoderTicksToDegrees(int ticks) {
+        return ticks / (1 / Constants.degreesToFalconTicks);
+    }
+
+    public double degreesToEncoderTicks(double degrees) {
+        // 1 rot = 360 degrees
         // 1 rot = 2048 ticks
-        // 1 rot = 360 deg
-        // 2048 ticks = 360 deg
-        double rate = 2048 / 360;
-        return rate * ticks;
+        // 1 degree = 1/360 rotation
+        // 1 degree = 2048 ticks / 360
+        // 1 degree = 5.689 ticks
+        return degrees * Constants.degreesToFalconTicks;
+
+    }
+
+    public double radiansToEncoderTicks(double radians) {
+        return degreesToEncoderTicks(Units.radiansToDegrees(radians));
     }
     
     public double encoderTicksToRadians(int ticks) {

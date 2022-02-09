@@ -20,6 +20,7 @@ import edu.wpi.first.math.util.Units;
  * constants are needed, to reduce verbosity.
  */
 public final class Constants {
+    public static final double degreesToFalconTicks = 5.689;
 
     public static final class Drive {
 

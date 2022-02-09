@@ -5,12 +5,17 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Turret;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class HomeTurret extends CommandBase {
+public class HomeTurret extends CommandBase implements Loggable {
   Turret turret;
+  @Log
   boolean homed;
+  @Log
   boolean center;
   /** Creates a new HomeTurret. */
   public HomeTurret(Turret turret) {
@@ -22,8 +27,10 @@ public class HomeTurret extends CommandBase {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    DriverStation.reportWarning("HOMING STARTED", false);
     homed = false;
     center = false;
+    turret.setSoftLimitsEnable(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -51,7 +58,9 @@ public class HomeTurret extends CommandBase {
 
   // Called once the command ends or is interrupted.
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    turret.setSoftLimitsEnable(true);
+  }
 
   // Returns true when the command should end.
   @Override

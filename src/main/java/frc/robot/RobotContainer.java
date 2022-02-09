@@ -4,6 +4,12 @@
 
 package frc.robot;
 
+import static frc.robot.Constants.Drive.TurnAnglekD;
+import static frc.robot.Constants.Drive.TurnAnglekI;
+import static frc.robot.Constants.Drive.TurnAnglekP;
+
+import com.ctre.phoenix.motorcontrol.NeutralMode;
+
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
@@ -11,22 +17,6 @@ import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
-import frc.robot.commands.DriveArcadeOpenLoop;
-import frc.robot.commands.HomeTurret;
-import frc.robot.commands.TurretYaw;
-import frc.robot.commands.auto.DriveDistanceProfiled;
-import frc.robot.commands.auto.TurnAngle;
-import frc.robot.subsystems.DriveBase;
-import frc.robot.subsystems.Intake;
-import frc.robot.subsystems.Turret;
-import frc.robot.subsystems.VisionSystem;
-
-import static frc.robot.Constants.Drive.*;
-
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-
-import io.github.oblarg.oblog.Logger;
-import io.github.oblarg.oblog.annotations.Log;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
@@ -34,6 +24,17 @@ import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.DriveArcadeOpenLoop;
+import frc.robot.commands.HomeTurret;
+import frc.robot.commands.OpenLoopTurret;
+import frc.robot.commands.auto.DriveDistanceProfiled;
+import frc.robot.commands.auto.TurnAngle;
+import frc.robot.subsystems.DriveBase;
+import frc.robot.subsystems.Intake;
+import frc.robot.subsystems.Turret;
+import frc.robot.subsystems.VisionSystem;
+import io.github.oblarg.oblog.Logger;
+import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -60,6 +61,7 @@ public class RobotContainer {
       driver::getLeftX, 
       driver::getLeftTriggerAxis
     );
+    private final OpenLoopTurret openLoopTurret = new OpenLoopTurret(driver::getRightX, turret);
   // auto commands
   // drive x distance
   DriveDistanceProfiled driveDist = new DriveDistanceProfiled(driveBase, 2);
@@ -82,12 +84,8 @@ public class RobotContainer {
     // Configure the button bindings
     configureButtonBindings();
     driveBase.setDefaultCommand(arcadeCommand);
-    turret.setDefaultCommand(
-      new SequentialCommandGroup(
-        new HomeTurret(turret),
-        new TurretYaw(turret, visionSystem)
-      )
-    );
+    //turret.setDefaultCommand(openT);
+    //turret.setDefaultCommand(new TurretYaw(turret, visionSystem));
     //turret.setDefaultCommand(zeroTurret);
 
     // configure autos
@@ -129,6 +127,7 @@ public class RobotContainer {
     ).debounce(0.5, DebounceType.kBoth);
 
     new JoystickButton(driver, Button.kB.value).whenPressed(new InstantCommand(driveBase::toggleInverted, driveBase));
+    new JoystickButton(driver, Button.kY.value).whenPressed(new HomeTurret(turret));
   }
   
   /**
