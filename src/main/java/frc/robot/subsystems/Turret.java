@@ -58,7 +58,7 @@ public class Turret extends SubsystemBase implements Loggable {
 
   public void openLoop(double demand) {
     yawMotor.set(ControlMode.PercentOutput, demand);
-    DriverStation.reportWarning(yawMotor.getLastError().toString(), false);
+    //DriverStation.reportWarning(yawMotor.getLastError().toString(), false);
   }
 
   public void setAngleGoal(Rotation2d angle) {
@@ -69,7 +69,8 @@ public class Turret extends SubsystemBase implements Loggable {
     yawMotor.set(ControlMode.Position, yawMotor.getSelectedSensorPosition() + (angle.getRadians() / 2 * Math.PI) * turretTicksPerRotation);
   }
   public void reset(Rotation2d angle) {
-    yawMotor.setSelectedSensorPosition((int)(angle.getRadians() / (2 * Math.PI / turretTicksPerRotation)));
+    
+    yawMotor.setSelectedSensorPosition((angle.getRadians() / 2 * Math.PI) * turretTicksPerRotation);
   }
 
   public Rotation2d getAngle() {

@@ -39,11 +39,11 @@ public class HomeTurret extends CommandBase implements Loggable {
     if (!homed) {
       turret.openLoop(-0.12);
       if (turret.getForwardLimitSwitch()) {
-        turret.reset(Rotation2d.fromDegrees(135+13.35));   
+        turret.reset(Rotation2d.fromDegrees(135));   
         homed = true;   
       }
       if (turret.getReverseLimitSwitch()) {
-        turret.reset(Rotation2d.fromDegrees(-135-13.25));
+        turret.reset(Rotation2d.fromDegrees(-135));
         homed = true;
       }
     } else {
