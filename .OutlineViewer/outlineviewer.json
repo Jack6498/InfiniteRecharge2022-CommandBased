@@ -1,5 +1,13 @@
 {
   "NetworkTables Settings": {
-    "mode": "Server"
+    "listenAddress": "6498",
+    "mode": "Client",
+    "serverTeam": "6498"
+  },
+  "photonvision": {
+    "limelight": {
+      "open": true
+    },
+    "open": true
   }
 }

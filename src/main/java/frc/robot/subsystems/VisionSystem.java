@@ -20,8 +20,10 @@ import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.surpriselib.SortByDistance;
+import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
-public class VisionSystem extends SubsystemBase {
+public class VisionSystem extends SubsystemBase implements Loggable {
   PhotonCamera CAM_limelight, CAM_lifecam;
   PhotonPipelineResult currentResult;
   boolean active = true;
@@ -31,14 +33,14 @@ public class VisionSystem extends SubsystemBase {
     CAM_limelight = new PhotonCamera(limelightCameraName);
     CAM_limelight.setDriverMode(false);
     CAM_limelight.setPipelineIndex(upperHubPipelineID);
-    CAM_limelight.setLED(VisionLEDMode.kOn);
+    CAM_limelight.setLED(VisionLEDMode.kOff);
 
     CAM_lifecam = new PhotonCamera(lifecamCameraName);
     CAM_lifecam.setDriverMode(true);
 
     NT_photonvision = NetworkTableInstance.getDefault().getTable("photonvision");
     NT_limelight = NT_photonvision.getSubTable("limelight");
-    NT_lifecam = NT_photonvision.getSubTable("lifecam");
+    NT_lifecam = NT_photonvision.getSubTable("Microsoft_LifeCam_HD-3000");
 
   }
 
@@ -95,6 +97,11 @@ public class VisionSystem extends SubsystemBase {
     } else {
       CAM_limelight.setLED(VisionLEDMode.kOn);
     }
+  }
+
+  @Log
+  public String getPhotonVersionString() {
+    return NT_photonvision.getEntry("version").getString("NO VAL");
   }
 
   @Override
