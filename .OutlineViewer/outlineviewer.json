@@ -5,6 +5,9 @@
     "serverTeam": "6498"
   },
   "photonvision": {
+    "lifecam": {
+      "open": true
+    },
     "limelight": {
       "open": true
     },

@@ -18,6 +18,7 @@ import org.photonvision.targeting.PhotonTrackedTarget;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.surpriselib.SortByDistance;
 import io.github.oblarg.oblog.Loggable;
@@ -101,7 +102,8 @@ public class VisionSystem extends SubsystemBase implements Loggable {
 
   @Log
   public String getPhotonVersionString() {
-    return NT_photonvision.getEntry("version").getString("NO VAL");
+    String version = NT_photonvision.getEntry("version").getString("NO VAL");
+    return String.format("{0}0{1}0{2}", version.substring(1, 4), version.charAt(6), version.charAt(8));
   }
 
   @Override
@@ -110,5 +112,6 @@ public class VisionSystem extends SubsystemBase implements Loggable {
     if (active) {
       currentResult = CAM_limelight.getLatestResult();
     }
+    System.out.println(getPhotonVersionString() + " " + Timer.getFPGATimestamp());
   }
 }
