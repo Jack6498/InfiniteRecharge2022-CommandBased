@@ -8,10 +8,7 @@ import static frc.robot.Constants.Drive.TurnAnglekD;
 import static frc.robot.Constants.Drive.TurnAnglekI;
 import static frc.robot.Constants.Drive.TurnAnglekP;
 
-import com.ctre.phoenix.motorcontrol.NeutralMode;
-
 import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.Debouncer.DebounceType;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
@@ -20,6 +17,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
+import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
@@ -44,8 +42,8 @@ import io.github.oblarg.oblog.annotations.Log;
  */
 public class RobotContainer {
   public DriverStation.Alliance startPosition;
-  @Log
-  SendableChooser<Command> autoChooser = new SendableChooser<>();
+  //@Log
+  //SendableChooser<Command> autoChooser = new SendableChooser<>();
   // controllers
   XboxController driver = new XboxController(Constants.Drive.DriverControllerId);
   // subsystems
@@ -89,7 +87,7 @@ public class RobotContainer {
     //turret.setDefaultCommand(zeroTurret);
 
     // configure autos
-    autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);
+    //autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);
   }
 
   /**
@@ -114,7 +112,7 @@ public class RobotContainer {
     // start/stop intake
     new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startIntakeMotor, intake::stopIntakeMotor, intake));
     // set brake mode
-    new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
+    /*new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
       new StartEndCommand(
         () -> {
           driveBase.setBrakeMode(NeutralMode.Brake);
@@ -124,7 +122,8 @@ public class RobotContainer {
         }, 
         driveBase
       )
-    ).debounce(0.5, DebounceType.kBoth);
+    ).debounce(0.5, DebounceType.kBoth);*/
+    
 
     new JoystickButton(driver, Button.kB.value).whenPressed(new InstantCommand(driveBase::toggleInverted, driveBase));
     new JoystickButton(driver, Button.kY.value).whenPressed(new HomeTurret(turret));
@@ -136,6 +135,6 @@ public class RobotContainer {
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    return autoChooser.getSelected();
+    return new PrintCommand("Auto!");
   }
 }
