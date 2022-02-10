@@ -13,14 +13,12 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj.XboxController.Button;
-import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.PIDCommand;
 import edu.wpi.first.wpilibj2.command.PrintCommand;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import edu.wpi.first.wpilibj2.command.StartEndCommand;
-import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
 import frc.robot.commands.DriveArcadeOpenLoop;
 import frc.robot.commands.HomeTurret;
@@ -32,7 +30,6 @@ import frc.robot.subsystems.Intake;
 import frc.robot.subsystems.Turret;
 import frc.robot.subsystems.VisionSystem;
 import io.github.oblarg.oblog.Logger;
-import io.github.oblarg.oblog.annotations.Log;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -52,14 +49,13 @@ public class RobotContainer {
   private final VisionSystem visionSystem = new VisionSystem();
   private final Turret turret = new Turret();
   // commands
-  private final DriveArcadeOpenLoop arcadeCommand = 
-    new DriveArcadeOpenLoop(
-      driveBase, 
-      driver::getRightTriggerAxis, 
-      driver::getLeftX, 
-      driver::getLeftTriggerAxis
-    );
-    private final OpenLoopTurret openLoopTurret = new OpenLoopTurret(driver::getRightX, turret);
+  private final DriveArcadeOpenLoop arcadeCommand = new DriveArcadeOpenLoop(
+    driveBase, 
+    driver::getRightTriggerAxis, 
+    driver::getLeftX, 
+    driver::getLeftTriggerAxis
+  );
+  private final OpenLoopTurret openLoopTurret = new OpenLoopTurret(driver::getRightX, turret);
   // auto commands
   // drive x distance
   DriveDistanceProfiled driveDist = new DriveDistanceProfiled(driveBase, 2);
@@ -70,12 +66,7 @@ public class RobotContainer {
   SequentialCommandGroup zeroTurret = new SequentialCommandGroup(
     //new ZeroTurret(turret)
   );
-  private SequentialCommandGroup simplestAuto = new SequentialCommandGroup(
-    new WaitCommand(1),
-    new DriveDistanceProfiled(driveBase, 1),
-    new TurnAngle(driveBase, 30),
-    new WaitCommand(1)
-  );
+
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     Logger.configureLoggingAndConfig(this, false);
