@@ -33,6 +33,7 @@ import edu.wpi.first.wpilibj2.command.StartEndCommand;
 import edu.wpi.first.wpilibj2.command.TrapezoidProfileCommand;
 import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import edu.wpi.first.wpilibj2.command.button.POVButton;
 
 /**
  * This class is where the bulk of the robot should be declared. Since Command-based is a
@@ -105,9 +106,10 @@ public class RobotContainer {
         driveBase
       )
     );
-    // start/stop intake
-    new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startFrontIntakeMotor, intake::stopFrontIntakeMotor, intake));
-    new JoystickButton(driver, Button.kA.value).whenHeld(new StartEndCommand(intake::startBackIntakeMotor, intake::stopBackIntakeMotor, intake));
+    // start/stop intak
+    new POVButton(driver, 0).whenHeld(new StartEndCommand(intake::startFrontIntakeMotor, intake::stopFrontIntakeMotor, intake));
+    new POVButton(driver, 180).whenHeld(new StartEndCommand(intake::startBackIntakeMotor, intake::startBackIntakeMotor, intake));
+    
     // set brake mode
     new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
       new StartEndCommand(
