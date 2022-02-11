@@ -8,6 +8,9 @@ import com.ctre.phoenix.motorcontrol.ControlMode;
 import com.ctre.phoenix.motorcontrol.can.VictorSPX;
 
 import edu.wpi.first.wpilibj.DoubleSolenoid;
+import edu.wpi.first.wpilibj.PneumaticsControlModule;
+import edu.wpi.first.wpilibj.PneumaticsModuleType;
+import edu.wpi.first.wpilibj.DoubleSolenoid.Value;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.Loggable;
 import io.github.oblarg.oblog.annotations.Config;
@@ -18,7 +21,7 @@ public class Intake extends SubsystemBase implements Loggable {
   // Hardware
   VictorSPX frontIntakeMotor;
   VictorSPX backIntakeMotor;
-  DoubleSolenoid leftPiston, rightPiston;
+  DoubleSolenoid frontPiston, backPiston;
 
   double frontMotorSetpoint;
   double backMotorSetpoint;
@@ -29,21 +32,25 @@ public class Intake extends SubsystemBase implements Loggable {
     frontMotorSetpoint = 0.0;
     backIntakeMotor = new VictorSPX(backIntakeVictorCANId);
     frontIntakeMotor.configOpenloopRamp(1);
-    //leftPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, leftPistonForwardChannel, leftPistonReverseChannel);
-    //rightPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, rightPistonForwardChannel, rightPistonReverseChannel);
+    frontPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, frontPistonForwardChannel, frontPistonReverseChannel);
+    backPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, backPistonForwardChannel, backPistonReverseChannel);
   }
-
-  public void startFrontIntakeMotor() {
+ public void lowerAndStartFrontIntake() {
     frontMotorSetpoint = 0.67;
-  }
-  public void stopFrontIntakeMotor() {
-    frontMotorSetpoint = 0;
-  }
-  public void startBackIntakeMotor() {
-    backMotorSetpoint = 0.67;
-  }
-public void stopBackIntakeMotor() {
+    frontPiston.set(Value.kReverse);
+ }
+ public void raiseAndStopFrontIntake() {
+  frontMotorSetpoint = 0;
+  frontPiston.set(Value.kForward);
+ }
+ public void lowerAndStartBackIntake() {
+  backMotorSetpoint = 0.67;
+  backPiston.set(Value.kReverse);
+ } 
+  
+public void raiseAndStopBackIntakeMotor() {
   backMotorSetpoint = 0;
+  backPiston.set(Value.kForward);
 }
   @Config
   public void setMotorPercent(double percent) {

@@ -86,10 +86,10 @@ public final class Constants {
     public static final class Intake {
         public static final int frontIntakeVictorCANId = 5;
         public static final int backIntakeVictorCANId = 6;
-        public static final int leftPistonForwardChannel = 1;
-        public static final int leftPistonReverseChannel = 0;
-        public static final int rightPistonForwardChannel = 1;
-        public static final int rightPistonReverseChannel = 0;
+        public static final int frontPistonForwardChannel = 1;
+        public static final int frontPistonReverseChannel = 0;
+        public static final int backPistonForwardChannel = 1;
+        public static final int backPistonReverseChannel = 0;
     }
 
     public static final class Shooter {
@@ -110,5 +110,10 @@ public final class Constants {
         public static final double LimelightPitch = 0;
         public static final double UpperHubTargetPitch = 0;
 
+    }
+    public static final class Climber {
+        public static final int climberMotorCANID = 7;
+        public static final int climberReleaseForwardChannel = 1;
+        public static final int climberReleaseReverseChannel = 0;
     }
 }
