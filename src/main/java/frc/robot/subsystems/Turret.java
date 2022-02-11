@@ -16,17 +16,21 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import io.github.oblarg.oblog.Loggable;
+import io.github.oblarg.oblog.annotations.Log;
 
 public class Turret extends SubsystemBase implements Loggable {
   
   TalonFX yawMotor = new TalonFX(yawMotorCANId);
   Rotation2d angleGoal = Rotation2d.fromDegrees(0);
   double rotationError = 0.0;
+  public boolean homed = false;
+  public boolean centered = false;
+  double openLoopDemand;
 
   public Turret() {
     yawMotor.configFactoryDefault();
     yawMotor.configPeakOutputForward(0.2);
-    yawMotor.configPeakOutputReverse(0.2);
+    yawMotor.configPeakOutputReverse(-0.2);
     yawMotor.config_kP(0, turretYaw_kP);
     yawMotor.config_kI(0, 0);
     yawMotor.config_kD(0, turretYaw_kD);
@@ -51,7 +55,18 @@ public class Turret extends SubsystemBase implements Loggable {
     yawMotor.setSelectedSensorPosition(0);
   }
 
+  @Log
+  public double getYawMotorOutputCurrent() {
+    return yawMotor.getStatorCurrent();
+  }
+
+  @Log(name = "Open Loop Demand")
+  public double getOpenLoopDemand() {
+    return openLoopDemand;
+  }
+
   public void openLoop(double demand) {
+    openLoopDemand = demand;
     yawMotor.set(ControlMode.PercentOutput, demand);
     //DriverStation.reportWarning(yawMotor.getLastError().toString(), false);
   }
@@ -79,5 +94,15 @@ public class Turret extends SubsystemBase implements Loggable {
     } else {
       yawMotor.configSoftLimitDisableNeutralOnLOS(true, 50);
     }
+  }
+
+  @Log.BooleanBox(name = "Turret Homed")
+  public boolean getTurretHomed() {
+    return homed;
+  }
+
+  @Log.BooleanBox(name = "Turret Centered")
+  public boolean getTurretCentered() {
+    return centered;
   }
 }

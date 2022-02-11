@@ -55,7 +55,7 @@ public class RobotContainer {
     driver::getLeftX, 
     driver::getLeftTriggerAxis
   );
-  private final OpenLoopTurret openLoopTurret = new OpenLoopTurret(driver::getRightX, turret);
+  //private final OpenLoopTurret openLoopTurret = new OpenLoopTurret(driver::getRightX, turret);
   // auto commands
   // drive x distance
   DriveDistanceProfiled driveDist = new DriveDistanceProfiled(driveBase, 2);
@@ -75,7 +75,7 @@ public class RobotContainer {
     driveBase.setDefaultCommand(arcadeCommand);
     //turret.setDefaultCommand(openT);
     //turret.setDefaultCommand(new TurretYaw(turret, visionSystem));
-    //turret.setDefaultCommand(zeroTurret);
+    //turret.setDefaultCommand(new HomeTurret(turret));
 
     // configure autos
     //autoChooser.setDefaultOption("Leave Tarmac & Stop", simplestAuto);
@@ -117,7 +117,6 @@ public class RobotContainer {
     
 
     new JoystickButton(driver, Button.kB.value).whenPressed(new InstantCommand(driveBase::toggleInverted, driveBase));
-    new JoystickButton(driver, Button.kY.value).whenPressed(new HomeTurret(turret));
   }
   
   /**

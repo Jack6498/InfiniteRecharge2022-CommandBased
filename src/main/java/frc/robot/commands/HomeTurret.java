@@ -8,15 +8,9 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.CommandBase;
 import frc.robot.subsystems.Turret;
-import io.github.oblarg.oblog.Loggable;
-import io.github.oblarg.oblog.annotations.Log;
 
-public class HomeTurret extends CommandBase implements Loggable {
+public class HomeTurret extends CommandBase {
   Turret turret;
-  @Log
-  boolean homed;
-  @Log
-  boolean center;
   /** Creates a new HomeTurret. */
   public HomeTurret(Turret turret) {
     this.turret = turret;
@@ -28,29 +22,29 @@ public class HomeTurret extends CommandBase implements Loggable {
   @Override
   public void initialize() {
     DriverStation.reportWarning("HOMING STARTED", false);
-    homed = false;
-    center = false;
+    turret.homed = false;
+    turret.centered = false;
     turret.setSoftLimitsEnable(false);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
   @Override
   public void execute() {
-    if (!homed) {
-      turret.openLoop(-0.12);
+    if (!turret.homed) {
+      turret.openLoop(0.1);
       if (turret.getForwardLimitSwitch()) {
         turret.reset(Rotation2d.fromDegrees(135));   
-        homed = true;   
+        turret.homed = true;   
       }
       if (turret.getReverseLimitSwitch()) {
         turret.reset(Rotation2d.fromDegrees(-135));
-        homed = true;
+        turret.homed = true;
       }
     } else {
-      if (!center) {
+      if (!turret.centered) {
         turret.setAngleGoal(Rotation2d.fromDegrees(0));
         if (Math.abs(turret.getAngle().getDegrees()) < 0.5) {
-          center = true;
+          turret.centered = true;
         }
       }
     }
@@ -60,11 +54,13 @@ public class HomeTurret extends CommandBase implements Loggable {
   @Override
   public void end(boolean interrupted) {
     turret.setSoftLimitsEnable(true);
+    System.out.println("TURRET CENTERED");
+    System.out.println("SOFT LIMITS ENABLED");
   }
 
   // Returns true when the command should end.
   @Override
   public boolean isFinished() {
-    return center;
+    return turret.centered;
   }
 }
