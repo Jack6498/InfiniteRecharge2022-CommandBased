@@ -43,7 +43,7 @@ public class Intake extends SubsystemBase implements Loggable {
     backMotorSetpoint = 0.67;
   }
 public void stopBackIntakeMotor() {
-  backMotorSetpoint = 0.67;
+  backMotorSetpoint = 0;
 }
   @Config
   public void setMotorPercent(double percent) {
