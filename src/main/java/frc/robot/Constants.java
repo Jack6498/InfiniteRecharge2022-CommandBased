@@ -23,10 +23,10 @@ public final class Constants {
 
     public static final class Drive {
 
-        public static final int LeftLeaderId = 3;
-        public static final int LeftFollowerId = 4;
-        public static final int RightLeaderId = 1;
-        public static final int RightFollowerId = 2;
+        public static final int LeftLeaderId = 1;
+        public static final int LeftFollowerId = 2;
+        public static final int RightLeaderId = 3;
+        public static final int RightFollowerId = 4;
         public static final int LeftPhotoeyePort = 0;
         public static final int RightPhotoeyePort = 0;
         // low=>high
@@ -84,15 +84,16 @@ public final class Constants {
     }
 
     public static final class Intake {
-        public static final int intakeVictorCANId = 5;
-        public static final int leftPistonForwardChannel = 0;
+        public static final int frontIntakeVictorCANId = 5;
+        public static final int backIntakeVictorCANId = 6;
+        public static final int leftPistonForwardChannel = 1;
         public static final int leftPistonReverseChannel = 0;
-        public static final int rightPistonForwardChannel = 0;
+        public static final int rightPistonForwardChannel = 1;
         public static final int rightPistonReverseChannel = 0;
     }
 
     public static final class Shooter {
-        public static final int yawMotorCANId = 1;
+        public static final int yawMotorCANId = 12;
         public static final double turretPositionOffsetThreshold = 30;
         public static final double turretProfileMaxVelocity = 1;
         public static final double turretProfileMaxAcceleration = 1;

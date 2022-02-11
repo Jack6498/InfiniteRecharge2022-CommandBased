@@ -16,33 +16,44 @@ import static frc.robot.Constants.Intake.*;
 
 public class Intake extends SubsystemBase implements Loggable {
   // Hardware
-  VictorSPX intakeMotor;
+  VictorSPX frontIntakeMotor;
+  VictorSPX backIntakeMotor;
   DoubleSolenoid leftPiston, rightPiston;
 
-  double motorSetpoint;
+  double frontMotorSetpoint;
+  double backMotorSetpoint;
   /** Creates a new Intake. */
   public Intake() {
-    intakeMotor = new VictorSPX(intakeVictorCANId);
-    intakeMotor.configOpenloopRamp(1);
-    motorSetpoint = 0.0;
+    frontIntakeMotor = new VictorSPX(frontIntakeVictorCANId);
+    frontIntakeMotor.configOpenloopRamp(1);
+    frontMotorSetpoint = 0.0;
+    backIntakeMotor = new VictorSPX(backIntakeVictorCANId);
+    frontIntakeMotor.configOpenloopRamp(1);
     //leftPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, leftPistonForwardChannel, leftPistonReverseChannel);
     //rightPiston = new DoubleSolenoid(PneumaticsModuleType.CTREPCM, rightPistonForwardChannel, rightPistonReverseChannel);
   }
 
-  public void startIntakeMotor() {
-    motorSetpoint = 0.67;
+  public void startFrontIntakeMotor() {
+    frontMotorSetpoint = 0.67;
   }
-  public void stopIntakeMotor() {
-    motorSetpoint = 0;
+  public void stopFrontIntakeMotor() {
+    frontMotorSetpoint = 0;
   }
-
+  public void startBackIntakeMotor() {
+    backMotorSetpoint = 0.67;
+  }
+public void stopBackIntakeMotor() {
+  backMotorSetpoint = 0.67;
+}
   @Config
   public void setMotorPercent(double percent) {
-    motorSetpoint = percent;
+    frontMotorSetpoint = percent;
+    backMotorSetpoint = percent;
   }
 
   @Override
   public void periodic() {
-    intakeMotor.set(ControlMode.PercentOutput, motorSetpoint);
+    frontIntakeMotor.set(ControlMode.PercentOutput, frontMotorSetpoint);
+    backIntakeMotor.set(ControlMode.PercentOutput, backMotorSetpoint);
   }
 }

@@ -106,7 +106,8 @@ public class RobotContainer {
       )
     );
     // start/stop intake
-    new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startIntakeMotor, intake::stopIntakeMotor, intake));
+    new JoystickButton(driver, Button.kX.value).whenHeld(new StartEndCommand(intake::startFrontIntakeMotor, intake::stopFrontIntakeMotor, intake));
+    new JoystickButton(driver, Button.kA.value).whenHeld(new StartEndCommand(intake::startBackIntakeMotor, intake::stopBackIntakeMotor, intake));
     // set brake mode
     new JoystickButton(driver, Button.kLeftBumper.value).whenHeld(
       new StartEndCommand(
